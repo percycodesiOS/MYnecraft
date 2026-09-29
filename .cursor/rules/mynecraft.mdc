@@ -1,0 +1,6 @@
+---
+description: MYnecraft source ownership and stable release URLs
+alwaysApply: true
+---
+
+Read AGENTS.md and README.md before changing this project. MYnecraft is developed here. CyberGrader.io is the publication host; preserve both existing live URLs and saved-game compatibility. Use scripts/stage-release.mjs and relevant tests. Preserve older worktrees and keep private context outside the public repository.

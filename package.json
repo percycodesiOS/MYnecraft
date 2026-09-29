@@ -1,0 +1,8 @@
+{
+  "name": "mynecraft-ec-edition",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test game/tests/*.test.mjs scripts/*.test.mjs"
+  }
+}
