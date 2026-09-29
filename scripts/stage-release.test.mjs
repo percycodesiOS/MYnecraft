@@ -29,3 +29,17 @@ test('release preserves unrelated host files, copies committed runtime only, and
   git(dst,'remote','set-url','origin','https://github.com/another/wrong.git');
   assert.throws(()=>stageRelease(src,dst),/origin/);
 });
+test('compatibility release manifest names the primary site', () => {
+  const root=mkdtempSync(join(tmpdir(),'mynecraft-release-manifest-')), src=join(root,'source'), dst=join(root,'host');
+  for (const p of [src,dst]) {
+    mkdirSync(p); git(p,'init','-b','main'); git(p,'config','user.name','Release test'); git(p,'config','user.email','test@example.invalid'); git(p,'config','core.autocrlf','false');
+  }
+  for(const file of ['index.html','game/mynecraft.html','game/start-menu.css']) put(src,file,'source '+file+'\n');
+  put(dst,'unrelated.html','preserve me\n');
+  for(const p of [src,dst]) {git(p,'add','.'); git(p,'commit','-m','fixture');}
+  git(dst,'remote','add','origin','https://github.com/percycodesiOS/CyberGrader.io.git'); git(dst,'update-ref','refs/remotes/origin/main','HEAD');
+  stageRelease(src,dst);
+  const manifest=JSON.parse(readFileSync(join(dst,'mynecraft-release.json'),'utf8'));
+  assert.equal(manifest.liveBase,'https://percycodesios.github.io/CyberGrader.io/');
+  assert.equal(manifest.primaryBase,'https://percycodesios.github.io/MYnecraft/');
+});

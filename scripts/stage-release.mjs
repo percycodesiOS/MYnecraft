@@ -19,28 +19,38 @@ export function safeFile(root, name) {
   }
   return path;
 }
-export function stageRelease(sourceRoot, targetRoot, check = false) {
-  sourceRoot = realpathSync.native(resolve(sourceRoot));
-  targetRoot = realpathSync.native(resolve(targetRoot));
-  if (sourceRoot === targetRoot) throw new Error('Source and host checkout must differ.');
-  if (!expectedHost.test(git(targetRoot, 'remote', 'get-url', 'origin'))) throw new Error('Target origin is not the existing CyberGrader.io host.');
-  for (const root of [sourceRoot, targetRoot]) {
-    if (realpathSync.native(resolve(git(root, 'rev-parse', '--show-toplevel'))) !== root) throw new Error('Use the root of each checkout.');
-    if (git(root, 'status', '--porcelain')) throw new Error(`Checkout must be clean: ${root}`);
-  }
-  if (git(targetRoot, 'branch', '--show-current') !== 'main' || git(targetRoot, 'rev-parse', 'HEAD') !== git(targetRoot, 'rev-parse', 'origin/main')) throw new Error('Use a fresh main checkout matching origin/main.');
+export const primaryBase = 'https://percycodesios.github.io/MYnecraft/';
+export const compatibilityBase = 'https://percycodesios.github.io/CyberGrader.io/';
+// Runtime files come from committed bytes only, so every published copy of a commit is identical.
+export function runtimePlan(sourceRoot, destination) {
   const commit = git(sourceRoot, 'rev-parse', 'HEAD');
   const names = git(sourceRoot, 'ls-files', '-z').split('\0').filter(name => name === 'index.html' || (name.startsWith('game/') && !name.startsWith('game/tests/'))).sort();
   for (const required of ['index.html', 'game/mynecraft.html', 'game/start-menu.css']) if (!names.includes(required)) throw new Error(`Missing runtime file: ${required}`);
   // Validate every file before writing anything; use committed bytes, not a second mutable source read.
   const plan = names.map(name => {
-    const from = safeFile(sourceRoot, name), to = safeFile(targetRoot, name);
+    const from = safeFile(sourceRoot, name), to = destination(name);
     if (!lstatSync(from).isFile()) throw new Error(`Not a regular runtime file: ${name}`);
     const data = execFileSync('git', ['-C', sourceRoot, 'show', `${commit}:${name}`], { maxBuffer: 64 * 1024 * 1024 });
     return { name, to, data, sha256: hash(data) };
   });
+  return { commit, plan };
+}
+export function releaseManifest(commit, plan, liveBase) {
+  return { sourceRepository: 'https://github.com/percycodesiOS/MYnecraft', sourceCommit: commit, liveBase, primaryBase, compatibilityBase, files: Object.fromEntries(plan.map(p => [p.name, p.sha256])) };
+}
+export function stageRelease(sourceRoot, targetRoot, check = false) {
+  sourceRoot = realpathSync.native(resolve(sourceRoot));
+  targetRoot = realpathSync.native(resolve(targetRoot));
+  if (sourceRoot === targetRoot) throw new Error('Source and host checkout must differ.');
+  if (!expectedHost.test(git(targetRoot, 'remote', 'get-url', 'origin'))) throw new Error('Target origin is not the existing CyberGrader.io compatibility host.');
+  for (const root of [sourceRoot, targetRoot]) {
+    if (realpathSync.native(resolve(git(root, 'rev-parse', '--show-toplevel'))) !== root) throw new Error('Use the root of each checkout.');
+    if (git(root, 'status', '--porcelain')) throw new Error(`Checkout must be clean: ${root}`);
+  }
+  if (git(targetRoot, 'branch', '--show-current') !== 'main' || git(targetRoot, 'rev-parse', 'HEAD') !== git(targetRoot, 'rev-parse', 'origin/main')) throw new Error('Use a fresh main checkout matching origin/main.');
+  const { commit, plan } = runtimePlan(sourceRoot, name => safeFile(targetRoot, name));
   const manifestPath = safeFile(targetRoot, 'mynecraft-release.json');
-  const manifest = { sourceRepository: 'https://github.com/percycodesiOS/MYnecraft', sourceCommit: commit, liveBase: 'https://percycodesios.github.io/CyberGrader.io/', files: Object.fromEntries(plan.map(p => [p.name, p.sha256])) };
+  const manifest = releaseManifest(commit, plan, compatibilityBase);
   if (!check) {
     for (const p of plan) { mkdirSync(dirname(p.to), { recursive: true }); writeFileSync(p.to, p.data); }
     writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
@@ -50,6 +60,6 @@ export function stageRelease(sourceRoot, targetRoot, check = false) {
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2), i = args.indexOf('--target');
-  if (i < 0 || !args[i + 1]) throw new Error('Usage: node scripts/stage-release.mjs --target <clean-host-clone> [--check]');
+  if (i < 0 || !args[i + 1]) throw new Error('Usage: node scripts/stage-release.mjs --target <clean-CyberGrader.io-clone> [--check]');
   console.log(JSON.stringify(stageRelease(source, args[i + 1], args.includes('--check')), null, 2));
 }
