@@ -2,15 +2,10 @@
 // Uses the exact Three.js version pinned by the game; no browser or real saves are touched.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
-import {pathToFileURL} from 'node:url';
 import vm from 'node:vm';
 const html=await fs.readFile(new URL('../mynecraft.html',import.meta.url),'utf8');
 const threeURL=JSON.parse(html.match(/<script type="importmap">\s*([\s\S]*?)<\/script>/)[1]).imports.three;
-const cache=path.join(os.tmpdir(),'mynecraft-three-0.160.0.mjs');
-try{await fs.access(cache);}catch{const res=await fetch(threeURL);assert(res.ok);await fs.writeFile(cache,await res.text());}
-const Three=await import(pathToFileURL(cache));
+const Three=await import(new URL(threeURL,new URL('../mynecraft.html',import.meta.url)));
 const events={};
 class Element{
  constructor(){this.style={};this.children=[];this.dataset={};this.events={};this.classList={add(){},remove(){}};this.textContent='';}

@@ -14,7 +14,7 @@ Compatibility addresses, still published from `percycodesiOS/CyberGrader.io`:
 - [Landing page](https://percycodesios.github.io/CyberGrader.io/)
 - [Game](https://percycodesios.github.io/CyberGrader.io/game/mynecraft.html)
 
-Keep both working. Students, bookmarks and course links may use the old addresses. Do not rename or delete CyberGrader.io, redirect its game away, or remove its unrelated apps. When served from the CyberGrader.io path, the landing page shows a short link to the primary site.
+Keep both working. The school has approved the existing CyberGrader.io address, so classroom links must continue to use it. Do not rename or delete CyberGrader.io, redirect its game away, or remove its unrelated apps. The landing page keeps Play on the same path and does not send students to the separate primary site.
 
 ## Saved worlds
 
@@ -24,7 +24,7 @@ Because the two addresses share one save, keep them on the same release. An olde
 
 ## Develop and verify
 
-Edit `index.html`, `game/mynecraft.html`, `game/start-menu.css` and `game/assets/` here. Run `npm test` with Node.js. No npm dependencies are required. The game and regression harness use Three.js 0.160.0; the harness may fetch that pinned library into the operating system's temporary cache on first run.
+Edit `index.html`, `game/mynecraft.html`, `game/start-menu.css` and `game/assets/` here. Run `npm test` with Node.js. No npm dependencies are required. The game and regression harness use the vendored Three.js 0.160.0 module in `game/vendor/`; its original MIT license is alongside it. The game loads its engine, textures, fonts and controls from the same published path, without requiring an external CDN to be unblocked. Tests also run without a network download or temporary engine cache. See `game/vendor/README.md` for provenance and the pinned hash.
 
 Serve this directory over HTTP to inspect desktop and touch layouts. Preserve save keys, imported worlds, controls, query/hash parameters and relative asset paths. Unit tests do not replace a browser check when changing visible behavior.
 
