@@ -38,7 +38,7 @@ const a=context.api;
 // Legacy labels are migration aliases; saves and all visible identities use the new names.
 assert.equal(a.macek.name,'Mr. Macek');assert.equal(a.macek.patrolIndex,2);
 assert.equal(a.unicorn.name,'Mr. B');assert.equal(a.unicorn.patrolIndex,3);
-assert.equal(a.eiler.name,'Mr. Eiler');assert.equal(a.campusActors.length,10);assert.equal(a.campusActors[9].name,'Cookie Man');assert.equal(a.campusActors[7].name,'Mr. B');
+assert.equal(a.eiler.name,'Mr. Eiler');assert.equal(a.campusActors.length,11);assert.equal(a.campusActors[9].name,'Cookie Man');assert.equal(a.campusActors[7].name,'Mr. B');
 assert.equal(a.campusActors[9].patrolIndex,4,'the old custodian name restores his saved patrol progress');
 assert.equal(a.canonicalCampusName('Cookie Monster'),'Cookie Man');
 assert.equal(a.canonicalCampusName('MaCEk'),'Mr. Macek');
@@ -47,7 +47,7 @@ let backup=JSON.parse(a.worldBackupText());
 backup.state.campus[1].name='MaCEk';backup.state.campus[7].name='Mr Unicorn 🦄';backup.state.campus[9].name='Cookie Monster';
 const restored=a.readWorldBackup(JSON.stringify(backup));
 assert.equal(restored.campus[1].name,'Mr. Macek');assert.equal(restored.campus[7].name,'Mr. B');
-assert.equal(restored.campus.length,10);assert.equal(restored.campus[9].name,'Cookie Man');assert.equal(a.getBlock(25,20,25),'snow');
+assert.equal(restored.campus.length,11);assert.equal(restored.campus[9].name,'Cookie Man');assert.equal(a.getBlock(25,20,25),'snow');
 // NPC and player use the exact same cached face, shirt and sleeves, including the collar details.
 assert.equal(a.macek.head.material[4].map,a.playerAvatar.head.material[4].map);
 assert.equal(a.macek.head.geometry.parameters.width,a.playerAvatar.head.geometry.parameters.width);
@@ -115,4 +115,4 @@ for(const dog of [a.ellie,a.percy]){
  assert(Math.hypot(dog.pos.x-a.macek.pos.x,dog.pos.z-a.macek.pos.z)<6);
  assert.equal(a.getBlock(Math.floor(dog.pos.x),Math.round(dog.pos.y),Math.floor(dog.pos.z)),undefined);
 }
-console.log('PASS: old-name save migration, ten NPCs, shared portrait face and outfit details, one-arm inward laptop, entrance-only patrol and seated transitions, protected dogs that follow the Mr. Macek NPC.');
+console.log('PASS: old-name save migration, eleven NPCs, shared portrait face and outfit details, one-arm inward laptop, entrance-only patrol and seated transitions, protected dogs that follow the Mr. Macek NPC.');
