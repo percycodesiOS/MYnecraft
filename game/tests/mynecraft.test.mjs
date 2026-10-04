@@ -350,7 +350,7 @@ assert(a.kay.pos.distanceTo(a.sirD.pos)<4,'KaY follows Sir D');
  for(const dog of [p.ellie,p.percy])assert(dog.invulnerable);
  console.log('Moving-NPC companion maximum gap/step:',maxGap.toFixed(3),maxStep.toFixed(3));
 }
-assert.equal(a.campusActors.map(n=>n.name).join(','),'Sir D,Mr. Macek,KaY,Ellie,Percy,Ms. Micco,Officer Shields,Mr. B,Mr. Eiler,Cookie Man,School Officer');
+assert.equal(a.campusActors.map(n=>n.name).join(','),'Sir D,Mr. Macek,KaY,Ellie,Percy,Ms. Micco,Officer Shields,Mr. B,Mr. Eiler,Cookie Man,School Officer,Sleeves');
 assert(a.insideBounds(a.micco.pos.x,a.micco.pos.z,a.campusBounds),'Ms. Micco stays on campus');
 a.player.pos.set(46.5,6.7,24);a.updateCampus(.2);assert(Math.abs(a.entranceDoors[0].rotation.y)>.1,'main doors open nearby');
 assert.equal(a.COOKIE_ARRIVE,10/24);assert.equal(a.COOKIE_DEPART,16/24);
@@ -391,7 +391,7 @@ for(const snap of parked){snap.actor.pos.copy(snap.pos);snap.actor.route=snap.ro
 a.player.pos.copy(parkedPlayer);
 {
  const legacy=JSON.parse(a.worldBackupText());
- legacy.state.campus=legacy.state.campus.filter(c=>c.name!=='Cookie Man'&&c.name!=='School Officer');
+ legacy.state.campus=legacy.state.campus.filter(c=>c.name!=='Cookie Man'&&c.name!=='School Officer'&&c.name!=='Sleeves');
  legacy.state.dayTime=0.12;
  assert.equal(legacy.state.campus.length,9);
  assert.equal(a.readWorldBackup(JSON.stringify(legacy)).campus.length,9,'a save from before Cookie Man still opens');
