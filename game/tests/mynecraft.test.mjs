@@ -438,7 +438,9 @@ const collisionContext=vm.createContext({...context,api:undefined,localStorage:{
 vm.runInContext(instrumented,collisionContext);
 const recovered=collisionContext.api;
 assert(recovered.canStandAt(recovered.player.pos),'saved player recovers to an unoccupied position');
-assert.equal(recovered.player.pos.x,34.5);assert.equal(recovered.player.pos.z,22.5);assert(recovered.player.pos.y>12.6);
+assert(Math.abs(recovered.player.pos.y-12.7001)<.001,'overlapping school save stays on its original upper floor');
+assert(Math.hypot(recovered.player.pos.x-34.5,recovered.player.pos.z-22.5)<=12,'recovery stays near the saved school position');
+assert(recovered.isSolid(Math.floor(recovered.player.pos.x),10,Math.floor(recovered.player.pos.z)),'recovery has a supported upper-floor landing');
 assert.equal(recovered.player.flying,false,'recovery preserves the saved flight setting');
 assert.equal(recovered.getBlock(25,20,25),'snow','collision recovery preserves saved builds');
 

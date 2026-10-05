@@ -27,8 +27,9 @@ expectPhase(8,19,'offsite');assert(!a.schoolOfficer.group.visible&&!a.schoolOffi
 expectPhase(8,20,'drivingIn');assert(!a.schoolOfficer.group.visible&&a.schoolOfficerCar.visible);
 expectPhase(8,29.99,'drivingIn');
 expectPhase(8,30,'walkingIn');assert(a.schoolOfficer.group.visible);
-assert(a.schoolOfficerCar.position.distanceTo(new Three.Vector3(46,5,31))<.001,'car reaches the existing front curb at 8:30');
-assert(a.schoolOfficer.pos.z<29,'officer steps onto the sidewalk clear of the parked car');
+assert(a.schoolOfficerCar.position.distanceTo(new Three.Vector3(52,5,52))<.001,'car reaches the opposite, exit-side bay at 8:30');
+assert(a.schoolOfficerCar.position.x+1.1<56,'parked car stays out of the approach lane');
+assert(a.schoolOfficer.pos.distanceTo(a.schoolOfficerCar.position)>2.4,'officer steps clear of the parked car');
 assert.equal(a.schoolOfficer.name,'School Officer');assert.equal(a.shields.name,'Officer Shields');
 assert.equal(a.campusActors.length,12);assert.equal(a.campusActors.filter(x=>x.name==='School Officer').length,1);
 assert.equal(a.schoolOfficer.group.userData.appearance,'black duty vest, glasses, tied-back hair');
@@ -45,6 +46,11 @@ assert(a.officerEntryPath.points.some(p=>p.z===23.5&&p.x>=45&&p.x<=48),'walk goe
 for(const path of [a.officerDriveInPath,a.officerDriveOutPath])for(const p of path){
  assert.equal(a.getBlock(Math.floor(p.x),4,Math.floor(p.z)),'stone','car stays on the existing paved loop');
 }
+for(const path of [a.officerDriveInPath,a.officerDriveOutPath])for(let i=1;i<path.length-1;i++){
+ const prev=path[i-1],p=path[i],next=path[i+1];
+ const dot=(p.x-prev.x)*(next.x-p.x)+(p.z-prev.z)*(next.z-p.z);
+ assert(dot>=-1e-7,'car turns at most 90 degrees instead of reversing along the approach');
+}
 for(const path of [a.officerDriveInPath,a.officerDriveOutPath])for(let i=0;i<=200;i++){
  const p={};a.officerPathPoint(path,path.at(-1).d*i/200,p);
  for(const x of [-1.1,0,1.1])for(const z of [-2.1,0,2.1]){
@@ -52,11 +58,14 @@ for(const path of [a.officerDriveInPath,a.officerDriveOutPath])for(let i=0;i<=20
   const wz=Math.floor(p.z-x*Math.sin(p.yaw)+z*Math.cos(p.yaw));
   for(const y of [5,6])assert(!a.getBlock(wx,y,wz),'the whole car clears the school walls');
  }
+ assert(Math.hypot(p.x-46,p.z-40)>7,'car stays clear of the center-island flagpole');
 }
 // Run a complete shift at the same 20-minute-per-day clock rate as the game.
 let time=at(8,30),previous=a.schoolOfficer.pos.clone(),sawDoor=false,sawPatrol=false,sawDeparture=false,sawDrive=false;
 const car=a.schoolOfficerCar,actor=a.schoolOfficer,children=a.scene.children.length;
-for(let i=0;i<7600;i++){
+// The exit-side parking bay has a longer curb walk. Observe through 5 PM so a
+// completed walk plus the ten-minute drive is measured, not cut off mid-return.
+for(let i=0;i<10200;i++){
  time=(time+.05/1200)%1;a.updateSchoolOfficer(.05,time);
  const phase=a.officerRoutine.phase;
  if(actor.group.visible){
@@ -69,7 +78,7 @@ for(let i=0;i<7600;i++){
  }
  sawDeparture ||= phase==='walkingOut';sawDrive ||= phase==='drivingOut';previous.copy(actor.pos);
 }
-assert(sawDoor&&sawPatrol&&sawDeparture&&sawDrive,'full day includes doorway, cafeteria, walk out, and car departure');
+assert(sawDoor&&sawPatrol&&sawDeparture&&sawDrive,'full day includes doorway, cafeteria, walk out, and car departure: '+JSON.stringify({sawDoor,sawPatrol,sawDeparture,sawDrive,phase:a.officerRoutine.phase,waypoint:a.officerRoutine.waypoint,pos:actor.pos}));
 assert.equal(a.officerRoutine.phase,'offsite');assert(!actor.group.visible&&!car.visible);
 assert.equal(a.scene.children.length,children,'daily updates allocate no additional scene actors or cars');
 // Large forward/backward jumps and reloading at a saved time reconstruct a
