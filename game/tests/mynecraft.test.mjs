@@ -791,7 +791,7 @@ assert.equal(a.playerAvatar.group.visible,false);assert.equal(a.viewModel.visibl
  assert(!a.isSolid(Math.floor(a.camera.position.x),Math.floor(a.camera.position.y),Math.floor(a.camera.position.z)),'indoors it tucks in instead of clipping through');
  a.setView('first');
 }
-assert.match(a.worldClockEl.textContent,/World clock: .+School buses reach the rear loop at 3:00 PM/);
+assert.match(a.worldClockEl.textContent,/World clock: .+School buses start their rear-loop trip at 3:00 PM game time/);
 
 a.resetBtn.events.click[0]();assert(reloaded);assert.equal(saved,null);a.persistSave();assert.equal(saved,null,'exit handler cannot resurrect reset world');
 // Larger traversable ring around the original campus. Old columns were x -64..96 (161)
