@@ -97,8 +97,7 @@ assert(!a.schoolFootprint(a.FLAGPOLE.x,a.FLAGPOLE.z),'flagpole stays outdoors');
 assert.equal(a.FLAGPOLE.x,46);assert.equal(a.FLAGPOLE.z,40,'flag is centered on the entrance-circle island');
 assert.equal(a.getBlock(a.FLAGPOLE.x,4,a.FLAGPOLE.z),'grass','flag remains on the island rather than the road');
 assert(a.schoolWayfinding.find(l=>l.name.startsWith('ECES')).position.x<a.schoolWayfinding.find(l=>l.name.startsWith('ECMS')).position.x,'ECES left and ECMS right from the front');
-assert(a.schoolWayfinding.some(l=>l.name==='Kindergarten · Floor 2'&&l.position.y>11));
-assert(a.schoolWayfinding.some(l=>l.name==='CIRC'&&l.position.y<10));
+assert.equal(a.schoolWayfinding.length,2,'only ECES and ECMS keep large preset labels');
 for(const [name,stops]of [['Mr B',a.unicornPatrol],['Sir D',a.sirPatrol],['Mr Macek',a.macekPatrol],['Mr Eiler',a.eilerPatrol],['Sleeves',a.sleevesPatrol],['Cookie Man',a.cookiePatrol]])
  for(const [x,y,z] of stops)assert.equal(a.walkFeet(x,z,y),y,`${name} patrol ${x},${z} retains clear floor`);
 for(const [x,z]of [[58,60],[58,70],[45,75]])for(let y=a.getBlock(x,0,z)?0:1;y<=4;y++)assert(a.isSolid(x,y,z),'new pavement is supported through the underlying grade');

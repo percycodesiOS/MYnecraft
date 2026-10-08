@@ -1,5 +1,5 @@
 // Run: node game/tests/input-regression.test.mjs
-// Device class, pointer-lock gestures, and legacy Auto migration. One world boot.
+// Device class, pointer-lock gestures, and saved control choices. One world boot.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import vm from 'node:vm';
@@ -74,11 +74,11 @@ function stop(){if(a.started)for(const fn of events.keydown)fn({code:'Escape',pr
 function locksAfter(fn){const before=locks.length;fn();return locks.length-before;}
 
 const booted=JSON.parse(saved);
-assert.equal(booted.controls,'auto','a saved Desktop choice is migrated to Auto');
+assert.equal(booted.controls,'desktop','a saved Keyboard choice is retained');
 assert.equal(booted.graphics,'detailed','graphics stays detailed through that migration');
 assert.equal(a.graphics,'detailed');
 assert.equal(a.renderer.shadowMap.enabled,true);
-assert.equal(a.controls,'auto');
+assert.equal(a.controls,'desktop');
 assert.equal(locks.length,0,'booting does not capture the mouse');
 assert.equal(a.touchUI?.style.display??document.getElementById('touchUI').style.display,'none');
 
@@ -117,6 +117,27 @@ for(const mode of ['creative','survival']){
  stop();
  assert.equal(locksAfter(()=>elements.enter.events.click[0](mouse())),1,`${mode} touch laptop Play can capture the mouse`);
 }
+
+// The actual menu and toolbar choices change the layout and survive saving.
+apply(laptop);
+const menu=document.getElementById('controlsLayout');
+const toolbar=document.getElementById('controlsToggle');
+// The stub does not index dynamically appended IDs; retrieve via the body.
+const panel=document.body.children.find(el=>el.id==='controls');
+const liveToolbar=panel.children.find(el=>el.id==='controlsToggle');
+menu.value='touch';menu.events.change[0]();
+assert.equal(a.controls,'touch');assert.equal(liveToolbar.value,'touch');
+assert.equal(document.getElementById('touchUI').style.display,'block');
+assert.equal(JSON.parse(saved).controls,'touch');
+assert.equal(menu.disabled,false);assert.equal(liveToolbar.disabled,false);
+liveToolbar.value='desktop';liveToolbar.events.change[0]();
+assert.equal(menu.value,'desktop');assert.equal(document.getElementById('touchUI').style.display,'none');
+assert.equal(JSON.parse(saved).controls,'desktop');
+apply(phone);a.setControlsLayout('desktop');
+assert.equal(locksAfter(()=>elements.enter.events.click[0](mouse())),0,'manual keyboard on a phone never captures the mouse');
+a.setControlsLayout('touch');
+for(const fn of mediaListeners)fn();
+assert.equal(a.controls,'touch','device changes preserve an explicit choice');
 
 apply(desktop);
 a.modeTo('creative');
@@ -252,14 +273,14 @@ for(const mode of ['creative','survival']){
  backup.state.graphics=mode==='creative'?'smooth':'detailed';
  backup.state.controls='touch';
  let loaded=a.readWorldBackup(JSON.stringify(backup));
- assert.equal(loaded.controls,'auto',`${mode} touch import becomes Auto`);
+ assert.equal(loaded.controls,'touch',`${mode} touch import retains its choice`);
  assert.equal(loaded.graphics,backup.state.graphics,`${mode} graphics stays with the touch import`);
  backup.state.controls='desktop';
  loaded=a.readWorldBackup(JSON.stringify(backup));
- assert.equal(loaded.controls,'auto',`${mode} desktop import becomes Auto`);
+ assert.equal(loaded.controls,'desktop',`${mode} keyboard import retains its choice`);
  assert.equal(loaded.graphics,backup.state.graphics);
 }
 assert.equal(JSON.parse(saved).controls,'auto');
 assert.equal(a.graphics,'detailed');
 
-console.log('PASS: input regression (desktop, phone, iPad, touch laptop, legacy Auto migration, both modes).');
+console.log('PASS: input regression (desktop, phone, iPad, touch laptop, saved control choices, both modes).');
