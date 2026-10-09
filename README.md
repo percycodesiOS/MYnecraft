@@ -18,7 +18,7 @@ Keep both working. The school has approved the existing CyberGrader.io address, 
 
 ## Saved worlds
 
-Both Pages sites share the origin `https://percycodesios.github.io`. The game saves to `localStorage` key `mynecraft_save_v1`, which is scoped by origin rather than path, so a player's autosave opens at either address in the same browser. The game uses no cookies, IndexedDB or service worker. Do not change the save key, move the site to another domain, or add path-scoped storage without a migration. Download World / Load World JSON backups remain the way to move a world to another device or browser.
+Both Pages sites share the origin `https://percycodesios.github.io`. The game saves to `localStorage` key `mynecraft_save_v1`, which is scoped by origin rather than path, so a player's autosave opens at either address in the same browser. The game uses no cookies, IndexedDB or service worker. Do not change the save key, move the site to another domain, or add path-scoped storage without a migration. Download Save (formerly Download World) / Load World JSON backups remain the way to move a world to another device or browser. The backup format is unchanged, so older MYnecraft downloads still load. These files cannot be imported into Minecraft. Loading validates the file before asking to replace the current local world; canceling or a failed storage write preserves that world. Download and check a copy of the current world first to keep both.
 
 Because the two addresses share one save, keep them on the same release. An older compatibility copy could otherwise load and rewrite a save made by a newer primary build.
 

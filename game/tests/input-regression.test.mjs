@@ -52,7 +52,7 @@ const context=vm.createContext({
 const script=html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace("import * as THREE from 'three';",'');
 const instrumented=script+`\n globalThis.api={
  startGame,releaseInput,setControlsLayout,readWorldBackup,worldBackupText,environmentWantsTouch,touchLayoutOn,menuBtn,renderer,lookLayer,stick,btnJump,
- modeSelect,setGraphics,
+ modeSelect,setGraphics,player,tick,
  get lookActive(){return lookActive;},get started(){return started;},get inputEpoch(){return inputEpoch;},get controls(){return controlsLayout;},
  get movement(){return keys;},get graphics(){return graphics;},
  modeTo(v){modeSelect.value=v;for(const change of modeSelect.events.change||[])change();}
@@ -283,4 +283,30 @@ for(const mode of ['creative','survival']){
 assert.equal(JSON.parse(saved).controls,'auto');
 assert.equal(a.graphics,'detailed');
 
-console.log('PASS: input regression (desktop, phone, iPad, touch laptop, saved control choices, both modes).');
+// Direction keys must actually move the player, including all four arrows.
+apply(desktop);a.modeTo('creative');a.startGame();
+function press(code,target){let prevented=false;for(const fn of events.keydown)fn({code,target,preventDefault(){prevented=true;}});return prevented;}
+function release(code){for(const fn of events.keyup)fn({code});}
+function readyToMove(){a.releaseInput();a.player.pos.set(0,35,0);a.player.yaw=0;a.player.pitch=0;a.player.flying=true;}
+for(const [code,x,z] of [['KeyW',0,-.25],['KeyS',0,.25],['KeyA',-.25,0],['KeyD',.25,0],['ArrowUp',0,-.25],['ArrowDown',0,.25],['ArrowLeft',-.25,0],['ArrowRight',.25,0]]){
+ readyToMove();const prevented=press(code);a.tick(now+=50);
+ assert.equal(a.player.pos.x,x,`${code} moves in the expected x direction`);
+ assert.equal(a.player.pos.z,z,`${code} moves in the expected z direction`);
+ if(code.startsWith('Arrow'))assert(prevented,`${code} does not scroll the page while playing`);
+ release(code);a.tick(now+=50);
+ assert.equal(a.player.pos.x,x,`${code} stops on release`);assert.equal(a.player.pos.z,z);
+}
+readyToMove();press('KeyW');press('ArrowUp');release('ArrowUp');a.tick(now+=50);
+assert.equal(a.player.pos.z,-.25,'releasing an arrow does not release a held W');
+readyToMove();press('KeyW');press('ArrowUp');release('KeyW');a.tick(now+=50);
+assert.equal(a.player.pos.z,-.25,'releasing W does not release a held arrow');
+for(const tagName of ['INPUT','SELECT','TEXTAREA','BUTTON']){
+ readyToMove();assert.equal(press('ArrowLeft',{tagName}),false);a.tick(now+=50);
+ assert.equal(a.player.pos.x,0,`${tagName} retains arrow-key editing without moving the player`);
+}
+readyToMove();press('ArrowUp');for(const fn of events.blur)fn();
+assert.equal(a.movement.ArrowUp,false,'losing focus releases arrow movement');
+assert.equal(press('ArrowRight'),false,'arrows do not capture page scrolling while paused');
+assert.equal(a.movement.ArrowRight,false,'arrows cannot start movement while paused');
+
+console.log('PASS: input regression (desktop, phone, iPad, touch laptop, saved controls, both modes, WASD and arrows).');
