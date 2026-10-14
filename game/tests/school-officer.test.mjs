@@ -31,7 +31,7 @@ assert(a.schoolOfficerCar.position.distanceTo(new Three.Vector3(52,5,52))<.001,'
 assert(a.schoolOfficerCar.position.x+1.1<56,'parked car stays out of the approach lane');
 assert(a.schoolOfficer.pos.distanceTo(a.schoolOfficerCar.position)>2.4,'officer steps clear of the parked car');
 assert.equal(a.schoolOfficer.name,'School Officer');assert.equal(a.shields.name,'Officer Shields');
-assert.equal(a.campusActors.length,12);assert.equal(a.campusActors.filter(x=>x.name==='School Officer').length,1);
+assert.equal(a.campusActors.length,13);assert.equal(a.campusActors.filter(x=>x.name==='School Officer').length,1);
 assert.equal(a.schoolOfficer.group.userData.appearance,'black duty vest, glasses, tied-back hair');
 assert.equal(a.schoolOfficer.group.getObjectByName('black duty vest').material.color.getHex(),0x171b20);
 assert(a.schoolOfficer.group.getObjectByName('tied-back hair'));
@@ -88,8 +88,8 @@ const saved=JSON.parse(a.worldBackupText());saved.state.dayTime=at(12);
 const reloaded=boot(saved.state);
 assert.equal(reloaded.officerRoutine.phase,'patrol');assert(reloaded.schoolOfficer.group.visible&&reloaded.schoolOfficerCar.visible);
 assert(reloaded.schoolOfficer.pos.z< -2);assert.equal(reloaded.campusActors.filter(x=>x.name==='School Officer').length,1);
-assert.equal(reloaded.readWorldBackup(reloaded.worldBackupText()).campus.length,12);
-saved.state.campus=saved.state.campus.filter(x=>x.name!=='School Officer'&&x.name!=='Sleeves');
+assert.equal(reloaded.readWorldBackup(reloaded.worldBackupText()).campus.length,13);
+saved.state.campus=saved.state.campus.filter(x=>x.name!=='School Officer'&&x.name!=='Sleeves'&&x.name!=='js');
 assert.equal(reloaded.readWorldBackup(JSON.stringify(saved)).campus.length,10,'older ten-actor saves remain valid');
 assert.equal(boot(saved.state).campusActors.filter(x=>x.name==='School Officer').length,1,'legacy load adds the routine once');
 // A user-built wall at the doorway stops the walk. Removal resumes the same

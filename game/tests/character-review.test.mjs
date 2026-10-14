@@ -30,7 +30,7 @@ const instrumented=script+`\n globalThis.api={WORLD,instMeshes,buildMeshes,playe
  buses,updateBuses,busRouteDistance,busRoutePoint,busAtKerb,busStopDistances,BUS_ARRIVE,BUS_COUNT,BUS_STAGGER,BUS_DRIVE_IN,BUS_DWELL,BUS_DRIVE_OUT,BUS_VISIT,BUS_LOOP,busRouteLength,BUS_ROUTE,
  playerAvatar,viewArms,viewModel,macekBodies,macekClothes,outfitPolo,outfitBlack,identityStatus,worldClockEl,setView,refreshOutfitPreview,updatePlayerAvatar,viewSelect,viewBtn,groundSurface,inBusYard,
  bubble,showBubble,SHIELDS_LINES,heightAt,nearestWalkPoint,walkFeet,
- eiler,eilerPatrol,entranceStaffBounds,canonicalCampusName,updateCompanions,companionAnchor,saveState,worldBounds,sleeves,sleevesBounds,sleevesPatrol,scene,get view(){return view;},get macekOutfit(){return macekOutfit;},
+ eiler,eilerPatrol,entranceStaffBounds,canonicalCampusName,updateCompanions,companionAnchor,saveState,worldBounds,sleeves,sleevesBounds,sleevesPatrol,js,jsBounds,jsStops,jsRoutine,updateJs,playgroundSwings,scene,get view(){return view;},get macekOutfit(){return macekOutfit;},
  setTime(t){dayTime=t;}};`;
 vm.runInContext(instrumented,context);
 const a=context.api;
@@ -38,7 +38,7 @@ const a=context.api;
 // Legacy labels are migration aliases; saves and all visible identities use the new names.
 assert.equal(a.macek.name,'Mr. Macek');assert.equal(a.macek.patrolIndex,2);
 assert.equal(a.unicorn.name,'Mr. B');assert.equal(a.unicorn.patrolIndex,3);
-assert.equal(a.eiler.name,'Mr. Eiler');assert.equal(a.campusActors.length,12);assert.equal(a.campusActors[9].name,'Cookie Man');assert.equal(a.campusActors[7].name,'Mr. B');
+assert.equal(a.eiler.name,'Mr. Eiler');assert.equal(a.campusActors.length,13);assert.equal(a.campusActors[9].name,'Cookie Man');assert.equal(a.campusActors[7].name,'Mr. B');
 assert.equal(a.campusActors[9].patrolIndex,4,'the old custodian name restores his saved patrol progress');
 assert.equal(a.canonicalCampusName('Cookie Monster'),'Cookie Man');
 assert.equal(a.canonicalCampusName('MaCEk'),'Mr. Macek');
@@ -47,7 +47,7 @@ let backup=JSON.parse(a.worldBackupText());
 backup.state.campus[1].name='MaCEk';backup.state.campus[7].name='Mr Unicorn 🦄';backup.state.campus[9].name='Cookie Monster';
 const restored=a.readWorldBackup(JSON.stringify(backup));
 assert.equal(restored.campus[1].name,'Mr. Macek');assert.equal(restored.campus[7].name,'Mr. B');
-assert.equal(restored.campus.length,12);assert.equal(restored.campus[9].name,'Cookie Man');assert.equal(a.getBlock(25,20,25),'snow');
+assert.equal(restored.campus.length,13);assert.equal(restored.campus[9].name,'Cookie Man');assert.equal(a.getBlock(25,20,25),'snow');
 // NPC and player use the exact same cached face, shirt and sleeves, including the collar details.
 assert.equal(a.macek.head.material[4].map,a.playerAvatar.head.material[4].map);
 assert.equal(a.macek.head.geometry.parameters.width,a.playerAvatar.head.geometry.parameters.width);
@@ -139,7 +139,7 @@ assert(sleevesDistance>30,'Sleeves actually walks several lawn circuits');
 assert.equal(a.scene.children.length,sceneCount,'walking adds no new actors or scene meshes');
 const withSleeves=JSON.parse(a.worldBackupText());
 assert.equal(a.readWorldBackup(JSON.stringify(withSleeves)).campus.filter(c=>c.name==='Sleeves').length,1);
-const legacySleeves=structuredClone(withSleeves);legacySleeves.state.campus=legacySleeves.state.campus.filter(c=>c.name!=='Sleeves');
+const legacySleeves=structuredClone(withSleeves);legacySleeves.state.campus=legacySleeves.state.campus.filter(c=>c.name!=='Sleeves'&&c.name!=='js');
 assert.equal(a.readWorldBackup(JSON.stringify(legacySleeves)).campus.length,11,'pre-Sleeves backups still import');
 for(const state of [withSleeves.state,legacySleeves.state]){
  const nextContext=vm.createContext({...context,api:undefined,localStorage:{getItem:()=>JSON.stringify(state),setItem(){},removeItem(){}}});
@@ -147,4 +147,64 @@ for(const state of [withSleeves.state,legacySleeves.state]){
  assert.equal(nextContext.api.campusActors.filter(c=>c.name==='Sleeves').length,1,'a reload creates exactly one Sleeves');
  if(state===withSleeves.state)assert.equal(nextContext.api.sleeves.patrolIndex,a.sleeves.patrolIndex);
 }
-console.log('PASS: old-name save migration, twelve NPCs, shared portrait face and outfit details, one-arm inward laptop, entrance-only patrol and seated transitions, protected dogs, Sleeves size/appearance, bounded walking and old/new save reloads.');
+// js walks the playground, boards each existing swing and keeps his hips on the
+// animated seat. Transitions stay continuous, and old saves gain him only once.
+assert.equal(a.js.name,'js');assert.equal(a.campusActors[12],a.js);
+assert(a.js.group.scale.x>a.kay.group.scale.x&&a.js.group.scale.x<1);
+for(const name of ['light brown blond hair','side fringe','tied sweatshirt','orange lime shoe'])assert(a.js.group.getObjectByName(name),name);
+const visitedSwings=new Set(),phases=new Set(),lastJs=a.js.group.position.clone();
+const hip=new Three.Vector3(),seat=new Three.Vector3(),grip=new Three.Vector3();
+let walked=0,swingRange=0,swingSave;
+const previousGround=a.js.pos.clone(),jsSceneCount=a.scene.children.length;
+for(let i=0;i<12000;i++){
+ a.updateJs(1/60);phases.add(a.jsRoutine.phase);
+ assert(a.insideBounds(a.js.pos.x,a.js.pos.z,a.jsBounds),'js stays on the playground');
+ assert.equal(a.walkFeet(Math.floor(a.js.pos.x),Math.floor(a.js.pos.z),a.js.pos.y),5,'saved anchor stays on walkable ground');
+ for(const x of [67.5,76.5])assert(Math.hypot(a.js.pos.x-x,a.js.pos.z-33.5)>.4,'route clears decorative swing support posts');
+ assert(a.js.group.position.distanceTo(lastJs)<.15,'walking, boarding and leaving do not teleport');
+ walked+=a.js.pos.distanceTo(previousGround);previousGround.copy(a.js.pos);lastJs.copy(a.js.group.position);
+ if(a.jsRoutine.phase==='swing'){
+  visitedSwings.add(a.jsRoutine.swing);
+  const swing=a.playgroundSwings[a.jsRoutine.swing];
+  a.js.group.updateMatrixWorld(true);swing.pivot.updateMatrixWorld(true);
+  hip.set(0,.55,0).applyMatrix4(a.js.group.matrixWorld);
+  seat.set(0,.05,0).applyMatrix4(swing.seat.matrixWorld);
+  assert(hip.distanceTo(seat)<1e-8,'seated hips follow the exact swing seat transform');
+  for(const [arm,side]of [[a.js.armL,-1],[a.js.armR,1]]){
+   grip.set(0,-.75,0).applyMatrix4(arm.matrixWorld);
+   assert(Math.abs(grip.x-swing.pivot.position.x-side*.4)<.03,'raised hands reach outward to the chains');
+  }
+  swingRange=Math.max(swingRange,Math.abs(swing.pivot.rotation.x));
+  swingSave??=JSON.parse(a.worldBackupText()).state;
+ }
+}
+assert(walked>100,'js really completes multiple playground loops');
+assert.deepEqual([...visitedSwings].sort(),[0,1],'he takes turns on both swings');
+for(const phase of ['walk','board','swing','leave'])assert(phases.has(phase),phase);
+assert(swingRange>.4,'the occupied swing visibly moves');
+assert.equal(a.scene.children.length,jsSceneCount,'the routine reuses existing scene objects');
+const withJs=JSON.parse(a.worldBackupText());
+assert.equal(a.readWorldBackup(JSON.stringify(withJs)).campus.filter(c=>c.name==='js').length,1);
+const beforeJs=structuredClone(withJs.state);beforeJs.campus=beforeJs.campus.filter(c=>c.name!=='js');
+for(const state of [beforeJs,swingSave]){
+ const nextContext=vm.createContext({...context,api:undefined,localStorage:{getItem:()=>JSON.stringify(state),setItem(){},removeItem(){}}});
+ vm.runInContext(instrumented,nextContext);
+ const next=nextContext.api;
+ assert.equal(next.campusActors.filter(c=>c.name==='js').length,1);
+ assert.equal(next.campusActors.filter(c=>c.name==='Sleeves').length,1);
+ assert.equal(next.jsRoutine.phase,'walk','a saved swing resumes safely on the ground');
+ assert.equal(next.js.pos.y,5);assert.equal(next.js.group.position.y,5);
+ assert.equal(next.getBlock(25,20,25),'snow','adding js preserves saved block edits');
+}
+// A blocked approach must not be accepted as the swing destination. Removing
+// the wall allows the same actor to continue with his normal navigation retry.
+a.jsRoutine.phase='walk';a.jsRoutine.swing=0;a.js.patrolIndex=a.jsStops.length;
+a.js.pos.set(72.5,5,33.5);a.js.group.position.copy(a.js.pos);a.js.route=[];a.js.navigationSearch=null;a.js.planTimer=0;
+for(let y=5;y<=7;y++)a.setBlock(70,y,33,'stone');
+for(let i=0;i<160;i++){a.updateJs(.05);assert.equal(a.jsRoutine.phase,'walk');}
+for(let y=5;y<=7;y++)a.setBlock(70,y,33,null);
+for(let i=0;i<800&&a.jsRoutine.phase==='walk';i++)a.updateJs(.05);
+assert.equal(a.jsRoutine.phase,'board','clear approach lets the same js board');
+const tooMany=structuredClone(withJs);tooMany.state.campus.push({...tooMany.state.campus[0]});
+assert.throws(()=>a.readWorldBackup(JSON.stringify(tooMany)),/invalid characters/,'backup still bounds its character array');
+console.log('PASS: old-name save migration, thirteen NPCs, shared portrait/outfit details, protected companions, Sleeves appearance/patrol, js playground walking, both animated swings, continuous boarding, seat alignment, blocked approach recovery and legacy/swing save reloads.');
