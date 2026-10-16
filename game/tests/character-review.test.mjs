@@ -28,7 +28,7 @@ const instrumented=script+`\n globalThis.api={WORLD,instMeshes,buildMeshes,playe
  shields,unicorn,unicornPatrol,shieldsSeated,SHIELDS_CYCLE,SHIELDS_SIT,updateShields,schoolInteriorBounds,schoolFootprint,skinTex,
  eddie,eddieRoost,eddiePerch,eddieFacing,updateEddie,EDDIE_ROCK,EDDIE_ROOF,EDDIE_DUSK,EDDIE_DAWN,
  buses,updateBuses,busRouteDistance,busRoutePoint,busAtKerb,busStopDistances,BUS_ARRIVE,BUS_COUNT,BUS_STAGGER,BUS_DRIVE_IN,BUS_DWELL,BUS_DRIVE_OUT,BUS_VISIT,BUS_LOOP,busRouteLength,BUS_ROUTE,
- playerAvatar,viewArms,viewModel,macekBodies,macekClothes,outfitPolo,outfitBlack,identityStatus,worldClockEl,setView,refreshOutfitPreview,updatePlayerAvatar,viewSelect,viewBtn,groundSurface,inBusYard,
+ playerAvatar,staffLook,viewArms,viewModel,macekBodies,macekClothes,identityStatus,worldClockEl,setView,updatePlayerAvatar,viewSelect,viewBtn,groundSurface,inBusYard,
  bubble,showBubble,SHIELDS_LINES,heightAt,nearestWalkPoint,walkFeet,
  eiler,eilerPatrol,entranceStaffBounds,canonicalCampusName,updateCompanions,companionAnchor,saveState,worldBounds,sleeves,sleevesBounds,sleevesPatrol,js,jsBounds,jsStops,jsRoutine,updateJs,playgroundSwings,scene,get view(){return view;},get macekOutfit(){return macekOutfit;},
  setTime(t){dayTime=t;}};`;
@@ -38,7 +38,7 @@ const a=context.api;
 // Legacy labels are migration aliases; saves and all visible identities use the new names.
 assert.equal(a.macek.name,'Mr. Macek');assert.equal(a.macek.patrolIndex,2);
 assert.equal(a.unicorn.name,'Mr. B');assert.equal(a.unicorn.patrolIndex,3);
-assert.equal(a.eiler.name,'Mr. Eiler');assert.equal(a.campusActors.length,13);assert.equal(a.campusActors[9].name,'Cookie Man');assert.equal(a.campusActors[7].name,'Mr. B');
+assert.equal(a.eiler.name,'Mr. Eiler');assert.equal(a.campusActors.length,17);assert.equal(a.campusActors[9].name,'Cookie Man');assert.equal(a.campusActors[7].name,'Mr. B');
 assert.equal(a.campusActors[9].patrolIndex,4,'the old custodian name restores his saved patrol progress');
 assert.equal(a.canonicalCampusName('Cookie Monster'),'Cookie Man');
 assert.equal(a.canonicalCampusName('MaCEk'),'Mr. Macek');
@@ -47,23 +47,22 @@ let backup=JSON.parse(a.worldBackupText());
 backup.state.campus[1].name='MaCEk';backup.state.campus[7].name='Mr Unicorn 🦄';backup.state.campus[9].name='Cookie Monster';
 const restored=a.readWorldBackup(JSON.stringify(backup));
 assert.equal(restored.campus[1].name,'Mr. Macek');assert.equal(restored.campus[7].name,'Mr. B');
-assert.equal(restored.campus.length,13);assert.equal(restored.campus[9].name,'Cookie Man');assert.equal(a.getBlock(25,20,25),'snow');
-// NPC and player use the exact same cached face, shirt and sleeves, including the collar details.
-assert.equal(a.macek.head.material[4].map,a.playerAvatar.head.material[4].map);
-assert.equal(a.macek.head.geometry.parameters.width,a.playerAvatar.head.geometry.parameters.width);
+assert.equal(restored.campus.length,17);assert.equal(restored.campus[9].name,'Cookie Man');assert.equal(a.getBlock(25,20,25),'snow');
+// The requested striped player is independent of the retained black-SV campus character.
+assert.equal(a.playerAvatar.style,'macekStriped');
+assert.notEqual(a.macek.head.material[4].map,a.playerAvatar.head.material[4].map);
 assert.equal(a.macek.head.material[4].map.colorSpace,Three.SRGBColorSpace);
-for(const arm of Object.values(a.viewArms))assert.equal(arm.userData.hand.material[4].map,a.skinTex,'first-person hands keep skin when outfits change');
+for(const arm of Object.values(a.viewArms))assert.equal(arm.userData.hand.material[4].map,a.staffLook('macekStriped').skin,'first-person hands match the selected character skin');
 for(const slot of a.hotbar.children)assert.equal(slot.children.length,2,'textured block thumbnail survives separate quantity updates');
 assert.equal(a.macek.group.userData.portrait,'Gators lanyard');
 for(const look of ['polo','black']){
  a.setMacekOutfit(look);
- for(const character of [a.macek,a.playerAvatar]){
-  assert.equal(character.body.material[4].map,a.macekClothes[look]);
-  assert.equal(character.armR.children[0].material[4].map,a.patternedSleeve);
-  assert.equal(character.armL.children[0].material[4].map,look==='black'?a.patternedSleeve:a.skinTex);
-  assert(character.poloCollars.every(c=>c.visible===(look==='polo')));
-  assert(character.shoulderCaps.every(c=>c.material[4].map===a.macekClothes[look]));
- }
+ assert.equal(a.macek.body.material[4].map,a.macekClothes.black);
+ for(const arm of [a.macek.armL,a.macek.armR])assert.equal(arm.children[0].material[4].map,a.patternedSleeve);
+ assert(a.macek.poloCollars.every(c=>!c.visible));
+ assert(a.macek.shoulderCaps.every(c=>c.material[4].map===a.macekClothes.black));
+ assert.equal(a.playerAvatar.body.material[4].map,a.staffLook('macekStriped').shirt);
+ assert(a.playerAvatar.poloCollars.every(c=>c.visible));
 }
 assert.equal(a.unicorn.laptop.rotation.y,Math.PI,'laptop screen is turned back toward wearer');
 assert.equal(a.unicorn.laptop.userData.carryArm,'armL');
@@ -139,7 +138,7 @@ assert(sleevesDistance>30,'Sleeves actually walks several lawn circuits');
 assert.equal(a.scene.children.length,sceneCount,'walking adds no new actors or scene meshes');
 const withSleeves=JSON.parse(a.worldBackupText());
 assert.equal(a.readWorldBackup(JSON.stringify(withSleeves)).campus.filter(c=>c.name==='Sleeves').length,1);
-const legacySleeves=structuredClone(withSleeves);legacySleeves.state.campus=legacySleeves.state.campus.filter(c=>c.name!=='Sleeves'&&c.name!=='js');
+const legacySleeves=structuredClone(withSleeves);legacySleeves.state.campus=legacySleeves.state.campus.slice(0,11);
 assert.equal(a.readWorldBackup(JSON.stringify(legacySleeves)).campus.length,11,'pre-Sleeves backups still import');
 for(const state of [withSleeves.state,legacySleeves.state]){
  const nextContext=vm.createContext({...context,api:undefined,localStorage:{getItem:()=>JSON.stringify(state),setItem(){},removeItem(){}}});
@@ -185,7 +184,7 @@ assert(swingRange>.4,'the occupied swing visibly moves');
 assert.equal(a.scene.children.length,jsSceneCount,'the routine reuses existing scene objects');
 const withJs=JSON.parse(a.worldBackupText());
 assert.equal(a.readWorldBackup(JSON.stringify(withJs)).campus.filter(c=>c.name==='js').length,1);
-const beforeJs=structuredClone(withJs.state);beforeJs.campus=beforeJs.campus.filter(c=>c.name!=='js');
+const beforeJs=structuredClone(withJs.state);beforeJs.campus=beforeJs.campus.slice(0,12);
 for(const state of [beforeJs,swingSave]){
  const nextContext=vm.createContext({...context,api:undefined,localStorage:{getItem:()=>JSON.stringify(state),setItem(){},removeItem(){}}});
  vm.runInContext(instrumented,nextContext);
@@ -207,4 +206,4 @@ for(let i=0;i<800&&a.jsRoutine.phase==='walk';i++)a.updateJs(.05);
 assert.equal(a.jsRoutine.phase,'board','clear approach lets the same js board');
 const tooMany=structuredClone(withJs);tooMany.state.campus.push({...tooMany.state.campus[0]});
 assert.throws(()=>a.readWorldBackup(JSON.stringify(tooMany)),/invalid characters/,'backup still bounds its character array');
-console.log('PASS: old-name save migration, thirteen NPCs, shared portrait/outfit details, protected companions, Sleeves appearance/patrol, js playground walking, both animated swings, continuous boarding, seat alignment, blocked approach recovery and legacy/swing save reloads.');
+console.log('PASS: old-name save migration, seventeen NPCs, independent player/NPC outfit details, protected companions, Sleeves appearance/patrol, js playground walking, both animated swings, continuous boarding, seat alignment, blocked approach recovery and legacy/swing save reloads.');

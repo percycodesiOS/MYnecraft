@@ -24,11 +24,11 @@ const script=html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace
 const instrumented=script+`\n globalThis.api={WORLD,instMeshes,buildMeshes,player,camera,npcs,animals,hotbar,resetBtn,modeSelect,startGame,doPlace,doBreak,castVoxel,persistSave,worldBackupText,readWorldBackup,restoreWorldBackup,tick,isSolid,isExposed,
  get time(){return dayTime;},get health(){return health;},get mode(){return gameMode;},get inventory(){return inventory;},get selected(){return selected;},
  select(i){selected=i;},pause(){started=false;},modeTo(v){modeSelect.value=v;for(const change of modeSelect.events.change)change();},get keys(){return BLOCK_KEYS;},getBlock,setBlock,campusActors,sirD,macek,kay,ellie,percy,walkingPath,campusBounds,insideBounds,updateCampus,entranceDoors,moveHorizontal,canStandAt,
- micco,campusAreas,believeBanner,floorLogo,campusDetails,cloudGroup,cloudMesh,clouds,updateClouds,spawnParticles,updateParticles,particles,shardMaterial,setMacekOutfit,patternedSleeve,updateBlockMeshes,faceSlots,faceDirections,faceVisible,travelTo,setGraphics,graphicsBtn,graphicsSelect,renderer,schoolLogo,CampusActor,createWalkingSearch,PATH_STEP_NODES,
+ micco,macekPatrol,campusAreas,believeBanner,floorLogo,campusDetails,cloudGroup,cloudMesh,clouds,updateClouds,spawnParticles,updateParticles,particles,shardMaterial,setMacekOutfit,patternedSleeve,updateBlockMeshes,faceSlots,faceDirections,faceVisible,travelTo,setGraphics,graphicsBtn,graphicsSelect,renderer,schoolLogo,CampusActor,createWalkingSearch,PATH_STEP_NODES,
  shields,unicorn,unicornPatrol,shieldsSeated,SHIELDS_CYCLE,SHIELDS_SIT,updateShields,schoolInteriorBounds,schoolFootprint,skinTex,SCHOOL_STAIRS,rampCells,
  eddie,eddieRoost,eddiePerch,eddieFacing,updateEddie,EDDIE_ROCK,EDDIE_ROOF,EDDIE_DUSK,EDDIE_DAWN,
  buses,updateBuses,busRouteDistance,busRoutePoint,busAtKerb,busStopDistances,BUS_ARRIVE,BUS_COUNT,BUS_STAGGER,BUS_DRIVE_IN,BUS_DWELL,BUS_DRIVE_OUT,BUS_VISIT,BUS_LOOP,busRouteLength,BUS_ROUTE,
- playerAvatar,viewArms,viewModel,macekBodies,macekClothes,outfitPolo,outfitBlack,identityStatus,worldClockEl,setView,refreshOutfitPreview,updatePlayerAvatar,viewSelect,viewBtn,groundSurface,inBusYard,
+ get playerAvatar(){return playerAvatar;},playerAvatars,get playerCharacter(){return playerCharacter;},staffInputs,staffLook,setPlayerCharacter,viewArms,viewModel,macekBodies,macekClothes,identityStatus,worldClockEl,setView,updatePlayerAvatar,viewSelect,viewBtn,groundSurface,inBusYard,
  bubble,showBubble,SHIELDS_LINES,heightAt,nearestWalkPoint,walkFeet,eiler,entranceStaffBounds,cookie,cookieOnDuty,COOKIE_ARRIVE,COOKIE_DEPART,cookiePatrol,updateCompanions,companionAnchor,
  get view(){return view;},get macekOutfit(){return macekOutfit;},
  setTime(t){dayTime=t;},get movement(){return keys;},releaseInput,setControlsLayout,controlsSelect,controlsMenu,lookLayer,stick,btnJump,btnDown,btnFly,btnBreak,btnPlace,touchUI,travelLimits,SIZE,EAST_EDGE,ORIGIN_SIZE,ORIGIN_EAST,inPlay,worldEdgeText,menuBtn};`;
@@ -327,12 +327,15 @@ assert(Math.hypot(a.ellie.pos.x-a.percy.pos.x,a.ellie.pos.z-a.percy.pos.z)>0.9,'
 assert(a.kay.pos.distanceTo(a.sirD.pos)<4,'KaY follows Sir D');
 {
  // A stationary-target test misses dogs choosing the wrong side of a raised
- // walkway while the NPC keeps moving. Exercise multiple complete patrols,
- // including both floors and the outdoor path, with the player far away.
- const patrolSave=JSON.stringify({mode:'creative',dayTime:.22,player:{x:120,y:40,z:80,flying:true}});
+ // walkway while the NPC keeps moving. The normal route now serves CIRC;
+ // retain this explicit two-floor/outdoor fixture to exercise the broader
+ // companion navigation mechanics, with the player far away.
+ const patrolSave=JSON.stringify({mode:'creative',dayTime:.22,player:{x:120,y:40,z:80,flying:true},
+  campus:[{name:'Mr. Macek',x:47.5,y:5,z:29.5,patrolIndex:0},{name:'Ellie',x:47.5,y:5,z:31.5,patrolIndex:0},{name:'Percy',x:45.5,y:5,z:31.5,patrolIndex:0}]});
  const patrolContext=vm.createContext({...context,api:undefined,localStorage:{getItem:()=>patrolSave,setItem(){},removeItem(){}}});
  vm.runInContext(instrumented,patrolContext);
  const p=patrolContext.api,visited=new Set(),upstairs=new Set();
+ p.macekPatrol.splice(0,p.macekPatrol.length,[46,5,18],[47,11,16],[46,5,29],[25,p.heightAt(25,12)+1,12],[15,p.heightAt(15,12)+1,12]);
  const previous=[p.ellie.pos.clone(),p.percy.pos.clone()];let maxGap=0,maxStep=0;
  for(let i=0;i<18000;i++){
   p.updateCampus(1/60);visited.add(p.macek.patrolIndex);
@@ -350,7 +353,7 @@ assert(a.kay.pos.distanceTo(a.sirD.pos)<4,'KaY follows Sir D');
  for(const dog of [p.ellie,p.percy])assert(dog.invulnerable);
  console.log('Moving-NPC companion maximum gap/step:',maxGap.toFixed(3),maxStep.toFixed(3));
 }
-assert.equal(a.campusActors.map(n=>n.name).join(','),'Sir D,Mr. Macek,KaY,Ellie,Percy,Ms. Micco,Officer Shields,Mr. B,Mr. Eiler,Cookie Man,School Officer,Sleeves,js');
+assert.equal(a.campusActors.map(n=>n.name).join(','),'Sir D,Mr. Macek,KaY,Ellie,Percy,Ms. Micco,Officer Shields,Mr. B,Mr. Eiler,Cookie Man,School Officer,Sleeves,js,Ms. Eriksen,Mr. Mullet,Mr. Wingenbach,Ms. McMichael');
 assert(a.insideBounds(a.micco.pos.x,a.micco.pos.z,a.campusBounds),'Ms. Micco stays on campus');
 a.player.pos.set(46.5,6.7,24);a.updateCampus(.2);assert(Math.abs(a.entranceDoors[0].rotation.y)>.1,'main doors open nearby');
 assert.equal(a.COOKIE_ARRIVE,10/24);assert.equal(a.COOKIE_DEPART,16/24);
@@ -391,7 +394,7 @@ for(const snap of parked){snap.actor.pos.copy(snap.pos);snap.actor.route=snap.ro
 a.player.pos.copy(parkedPlayer);
 {
  const legacy=JSON.parse(a.worldBackupText());
- legacy.state.campus=legacy.state.campus.filter(c=>c.name!=='Cookie Man'&&c.name!=='School Officer'&&c.name!=='Sleeves'&&c.name!=='js');
+ legacy.state.campus=legacy.state.campus.slice(0,9);
  legacy.state.dayTime=0.12;
  assert.equal(legacy.state.campus.length,9);
  assert.equal(a.readWorldBackup(JSON.stringify(legacy)).campus.length,9,'a save from before Cookie Man still opens');
@@ -465,14 +468,16 @@ a.persistSave();
 }
 a.setView('first');
 
-// Both outfit cards select the actual player and persist the same choice.
-a.setMacekOutfit('polo');a.refreshOutfitPreview();
-assert(a.outfitPolo.checked);assert(!a.outfitBlack.checked);
-assert.match(a.identityStatus.textContent,/blue SV polo with one patterned SV sleeve/);
-a.outfitBlack.checked=true;a.outfitBlack.events.change[0]();
-assert.equal(a.playerAvatar.body.userData.outfit,'black');
-assert.equal(JSON.parse(saved).macekOutfit,'black');
-assert(!a.outfitPolo.checked);assert(a.outfitBlack.checked);
+// Staff cards select the actual player while the roaming Mr. Macek stays independent.
+a.setPlayerCharacter('macek');
+assert(a.staffInputs.macek.checked);assert(!a.staffInputs.micco.checked);
+assert.match(a.identityStatus.textContent,/Mr\. Macek.*CIRC/);
+a.staffInputs.micco.checked=true;a.staffInputs.micco.events.change[0]();
+assert.equal(a.playerAvatar,a.playerAvatars.micco);
+assert.equal(JSON.parse(saved).playerCharacter,'micco');
+assert(!a.staffInputs.macek.checked);assert(a.staffInputs.micco.checked);
+assert.equal(a.macek.body.userData.outfit,'black');
+a.setPlayerCharacter('macek');
 a.setGraphics('detailed');
 const graphicsBackup=a.readWorldBackup(a.worldBackupText());
 assert.equal(graphicsBackup.graphics,'detailed','portable backup restores graphics along with the outfit');
@@ -480,8 +485,7 @@ const legacyGraphics=JSON.parse(a.worldBackupText());delete legacyGraphics.state
 assert.equal(a.readWorldBackup(JSON.stringify(legacyGraphics)).graphics,'smooth','older backups default safely');
 legacyGraphics.state.graphics='invalid';
 assert.throws(()=>a.readWorldBackup(JSON.stringify(legacyGraphics)),/invalid graphics/);
-assert.match(html,/src="\.\/assets\/macek-avatar-lanyard.png"/);
-await fs.access(new URL('../assets/macek-avatar-black.png',import.meta.url));
+assert.match(html,/id="staffChoices"/);
 
 // Portable backup safety: round trip, bad data, cancellation, storage failure, unload race.
 const portable=a.worldBackupText(), decoded=a.readWorldBackup(portable);
@@ -740,22 +744,16 @@ for(let i=0;i<a.unicornPatrol.length;i++){
  assert.equal(a.unicorn.laptop.rotation.y,Math.PI,'screen faces the wearer');
 }
 
-// ===== MaCEk's outfits dress every MaCEk body =====
-assert(a.macekBodies.length>=3,'the NPC, the playable avatar and the first-person sleeves are all registered');
-a.setMacekOutfit('polo');
-assert.equal(a.macek.body.material[0].map,a.macekClothes.polo,'blue SV polo');
-assert.equal(a.macek.armR.children[0].material[4].map,a.patternedSleeve,'one patterned SV sleeve');
-assert.equal(a.macek.armL.children[0].material[4].map,a.skinTex,'and the other arm is bare');
-assert.equal(a.playerAvatar.armR.children[0].material[4].map,a.patternedSleeve,'the playable body wears the same sleeve');
-assert.equal(a.viewArms.armR.material[4].map,a.patternedSleeve,'so do the first-person hands');
-assert.equal(a.viewArms.armL.material[4].map,a.skinTex);
-a.setMacekOutfit('black');
-for(const parts of a.macekBodies){
- assert.equal(parts.armL.material[4].map,a.patternedSleeve,'the black SV shirt patterns both sleeves');
- assert.equal(parts.armR.material[4].map,a.patternedSleeve);
- if(parts.body)assert.equal(parts.body.material[0].map,a.macekClothes.black);
+// ===== legacy outfit values never redress the independent NPC or striped player =====
+assert(a.macekBodies.some(parts=>parts.body===a.macek.body),'the NPC retains its cached outfit parts');
+assert(!a.macekBodies.some(parts=>parts.body===a.playerAvatar.body),'the playable body has independent clothing');
+for(const legacyLook of ['polo','black']){
+ a.setMacekOutfit(legacyLook);
+ assert.equal(a.macek.body.material[0].map,a.macekClothes.black,'campus Mr. Macek keeps his black SV shirt');
+ for(const arm of [a.macek.armL,a.macek.armR])assert.equal(arm.children[0].material[4].map,a.patternedSleeve,'campus Mr. Macek keeps both patterned sleeves');
+ assert.equal(a.playerAvatar.body.material[0].map,a.staffLook('macekStriped').shirt,'playable Mr. Macek keeps the striped polo');
+ for(const arm of ['armL','armR'])assert.equal(a.viewArms[arm].material[4].map,a.playerAvatar[arm].children[0].material[4].map,'first-person arms match the playable striped polo');
 }
-assert.equal(a.playerAvatar.body.userData.outfit,'black','the playable body records the outfit too');
 
 // ===== playing as MaCEk =====
 a.setView('third');
@@ -908,4 +906,4 @@ legacyControls.state.mode='creative';
 assert.equal(a.readWorldBackup(JSON.stringify(legacyControls)).controls,'touch','a touch backup retains its choice in creative mode');
 a.setGraphics('smooth');context.navigator.maxTouchPoints=0;context.navigator.platform='Win32';mediaQuery(false,true);a.setControlsLayout('auto',true);
 
-console.log('PASS: Officer Shields and Mr. Eiler (bounded entrance patrol), seated/standing cycle and arrival greetings, Mr. B (indoor-only routes, one-arm inward laptop), Mr. Macek outfits on every body, first/third person, Eddie rock-to-roof with day wrapping, SV floor logo, rear bus yard + 3 PM bus loop with no duplicate spawning, zero per-frame allocation, incremental face buffers/growth, no world scans on block actions, graphics modes, coordinate travel, paused rendering, safe/exact save restoration, legacy saves, 14 block placements, hotbar, survival inventory/flight, NPCs, animals, lake, school entrance, 20-minute clock, reset, two-floor navigation, stairs, campus boundaries, sunset meeting, companion following and doors.');
+console.log('PASS: Officer Shields and Mr. Eiler (bounded entrance patrol), seated/standing cycle and arrival greetings, Mr. B (indoor-only routes, one-arm inward laptop), independent black-SV campus Mr. Macek and striped playable body, first/third person, Eddie rock-to-roof with day wrapping, SV floor logo, rear bus yard + 3 PM bus loop with no duplicate spawning, zero per-frame allocation, incremental face buffers/growth, no world scans on block actions, graphics modes, coordinate travel, paused rendering, safe/exact save restoration, legacy saves, 14 block placements, hotbar, survival inventory/flight, NPCs, animals, lake, school entrance, 20-minute clock, reset, two-floor navigation, stairs, campus boundaries, sunset meeting, companion following and doors.');

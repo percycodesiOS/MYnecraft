@@ -28,7 +28,7 @@ const instrumented=script+`\n globalThis.api={WORLD,instMeshes,buildMeshes,playe
  shields,unicorn,unicornPatrol,shieldsSeated,SHIELDS_CYCLE,SHIELDS_SIT,updateShields,schoolInteriorBounds,schoolFootprint,skinTex,
  eddie,eddieRoost,eddiePerch,eddieFacing,updateEddie,EDDIE_ROCK,EDDIE_ROOF,EDDIE_DUSK,EDDIE_DAWN,
  buses,updateBuses,busRouteDistance,busRoutePoint,busAtKerb,busStopDistances,BUS_ARRIVE,BUS_COUNT,BUS_STAGGER,BUS_DRIVE_IN,BUS_DWELL,BUS_DRIVE_OUT,BUS_VISIT,BUS_LOOP,busRouteLength,BUS_ROUTE,
- playerAvatar,viewArms,viewModel,macekBodies,macekClothes,outfitPolo,outfitBlack,identityStatus,worldClockEl,setView,refreshOutfitPreview,updatePlayerAvatar,viewSelect,viewBtn,groundSurface,inBusYard,
+ playerAvatar,viewArms,viewModel,macekBodies,macekClothes,identityStatus,worldClockEl,setView,updatePlayerAvatar,viewSelect,viewBtn,groundSurface,inBusYard,
  bubble,showBubble,SHIELDS_LINES,heightAt,nearestWalkPoint,walkFeet,
  eiler,eilerPatrol,entranceStaffBounds,canonicalCampusName,updateCompanions,companionAnchor,saveState,worldBounds,get view(){return view;},get macekOutfit(){return macekOutfit;},
  setTime(t){dayTime=t;}};`;
