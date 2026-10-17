@@ -25,6 +25,7 @@ class Element{
  constructor(){this.style={};this.children=[];this.dataset={};this.events={};this.classList={add(){},remove(){}};this.textContent='';this.value='';this.getBoundingClientRect=()=>({left:0,top:0,width:132,height:132,right:132,bottom:132});}
  appendChild(e){this.children.push(e);} append(...es){this.children.push(...es);}
  addEventListener(k,f){(this.events[k]??=[]).push(f);} setAttribute(k,v){this[k]=v;}
+ focus(){document.activeElement=this;}
  getContext(){return new Proxy({measureText:t=>({width:t.length*15})},{get:(o,k)=>o[k]??(()=>{})});}
  requestPointerLock(){const waiter={};const promise=new Promise(resolve=>{waiter.resolve=resolve;});locks.push(promise);lockWaiters.push(waiter);return promise;}
 }
@@ -52,7 +53,8 @@ const context=vm.createContext({
 const script=html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace("import * as THREE from 'three';",'');
 const instrumented=script+`\n globalThis.api={
  startGame,releaseInput,setControlsLayout,readWorldBackup,worldBackupText,environmentWantsTouch,touchLayoutOn,menuBtn,renderer,lookLayer,stick,btnJump,
- modeSelect,setGraphics,player,tick,flyTag,
+ modeSelect,setGraphics,player,tick,flyTag,camera,doPlace,setBlock,getBlock,persistSave,inventory,inventoryBtn,inventoryChoices,inventoryOverlay,inventoryBack,
+ get inventoryOpen(){return inventoryOpen;},get selected(){return selected;},
  get lookActive(){return lookActive;},get started(){return started;},get inputEpoch(){return inputEpoch;},get controls(){return controlsLayout;},
  get movement(){return keys;},get graphics(){return graphics;},get view(){return view;},
  modeTo(v){modeSelect.value=v;for(const change of modeSelect.events.change||[])change();}
@@ -361,4 +363,53 @@ press('KeyV');for(const fn of events.blur)fn();
 assert.equal(a.movement.KeyV,false,'losing focus clears descent');
 assert.equal(a.started,false);
 
-console.log('PASS: input regression (desktop, phone, iPad, touch laptop, saved controls, both modes, WASD/arrows, independent sprint/flight/descent).');
+// The visual inventory pauses safely, selects the real building material, and
+// retains existing save data. These actions run against the actual game module.
+a.modeTo('creative');a.startGame();readyToMove();
+const savedBeforePicker=a.readWorldBackup(a.worldBackupText());
+press('KeyW');assert(press('KeyI'),'I is handled while playing');
+assert.equal(a.inventoryOpen,true);assert.equal(a.started,false);
+assert.equal(a.movement.KeyW,false,'opening the picker releases movement');
+assert.equal(a.inventoryOverlay.hidden,false);
+assert.equal(a.renderer.domElement.inert,true,'the world cannot receive input behind the picker');
+assert.equal(a.inventoryChoices.length,14,'all existing materials are available without a new catalog');
+assert(a.inventoryChoices.every(c=>!c.button.disabled&&c.count.textContent==='Unlimited'));
+const pausedPosition=a.player.pos.clone();a.tick(now+=50);assert(a.player.pos.equals(pausedPosition));
+for(const fn of events.keydown)fn({code:'KeyI',repeat:true,preventDefault(){}});
+assert.equal(a.inventoryOpen,true,'holding I does not close the picker immediately');
+a.inventoryBack.focus();
+for(const fn of events.keydown)fn({code:'Tab',preventDefault(){}});
+assert.equal(document.activeElement,a.inventoryChoices[0].button,'Tab wraps within the picker');
+a.inventoryChoices[7].button.events.click[0]();
+assert.equal(a.selected,7,'Brick is selected through the real inventory button');
+assert.equal(a.inventoryOpen,false);assert.equal(a.started,true);
+assert.equal(a.renderer.domElement.inert,false);assert.equal(document.activeElement,a.renderer.domElement);
+assert.equal(JSON.parse(saved).player.sel,7,'selection is retained in the existing save');
+assert.deepEqual(JSON.parse(saved).edits,{...savedBeforePicker.edits},'selecting a block preserves all existing edits');
+assert.deepEqual(JSON.parse(saved).inventory,{...savedBeforePicker.inventory},'Creative selection does not invent collected items');
+
+// Place the chosen material on a real block, then round-trip the same backup schema.
+a.player.pos.set(90.5,30.5,80.5);a.player.flying=true;a.camera.rotation.set(0,0,0);
+for(let z=77;z<=80;z++)a.setBlock(90,30,z,null);
+a.setBlock(90,30,76,'stone');a.doPlace();
+assert.equal(a.getBlock(90,30,77),'brick','inventory selection drives actual placement');
+a.persistSave();const pickedBackup=a.readWorldBackup(a.worldBackupText());
+assert.equal(pickedBackup.edits['90,30,77'],'brick');assert.equal(pickedBackup.player.sel,7);
+a.inventoryBtn.events.click[0]();press('Escape');
+assert.equal(a.inventoryOpen,false);assert.equal(a.started,true,'Esc closes only the picker and resumes');
+a.inventoryBtn.events.click[0]();press('KeyI');assert.equal(a.inventoryOpen,false,'I closes the picker');
+for(const tagName of ['INPUT','SELECT','TEXTAREA','BUTTON']){
+ press('KeyI',{tagName});assert.equal(a.inventoryOpen,false,`${tagName} keeps I as ordinary form input`);
+}
+
+a.modeTo('survival');a.inventory.brick=2;a.inventoryBtn.events.click[0]();
+assert.equal(a.inventoryChoices[7].count.textContent,'2 available');
+assert.equal(a.inventoryChoices[0].button.disabled,true,'empty survival materials are visibly unavailable');
+const beforeEmptyChoice=a.selected;a.inventoryChoices[0].button.events.click[0]();
+assert.equal(a.selected,beforeEmptyChoice);assert.equal(a.inventoryOpen,true,'an empty choice cannot resume with a fabricated item');
+a.inventoryBack.events.click[0]();assert.equal(a.started,true,'Back to game resumes');
+a.inventoryBtn.events.click[0]();for(const fn of events.blur)fn();
+assert.equal(a.inventoryOpen,false);assert.equal(a.started,false,'losing focus closes the picker into the pause menu');
+assert.equal(a.renderer.domElement.inert,false);
+
+console.log('PASS: input regression (desktop, phone, iPad, touch laptop, saved controls, both modes, WASD/arrows, independent sprint/flight/descent, inventory open/close/focus/select/place/save).');
