@@ -38,12 +38,12 @@ a.setBlock(85,20,75,'glow');
 let now=1000;a.tick(now);const startY=a.player.pos.y;
 for(let i=0;i<25;i++)a.tick(now+=50);
 assert(a.player.pos.y>startY+4,'real physics lifts the player without jump or flight');
-const upperY=a.player.pos.y;a.keys.ShiftLeft=true;
+const upperY=a.player.pos.y;a.keys.KeyV=true;
 for(let i=0;i<15;i++)a.tick(now+=50);
-assert(a.player.pos.y<upperY-1.5,'Shift descends in the water column');a.keys.ShiftLeft=false;
+assert(a.player.pos.y<upperY-1.5,'V descends in the water column');a.keys.KeyV=false;
 a.modeTo('survival');a.player.pos.set(85.5,24,75.5);a.setBreath(0);
 a.tick(now+=50);assert.equal(a.breath,10,'powered water restores air in challenge mode');assert.equal(a.health,20);
-a.btnDown.events.touchstart[0]({preventDefault(){}});assert.equal(a.keys.ShiftLeft,true,'touch DOWN works in the lift without flying');a.btnDown.events.touchend[0]();assert.equal(a.keys.ShiftLeft,false);
+a.btnDown.events.touchstart[0]({preventDefault(){}});assert.equal(a.keys.KeyV,true,'touch DOWN works in the lift without flying');a.btnDown.events.touchend[0]();assert.equal(a.keys.KeyV,false);
 a.player.pos.set(85.5,28,75.5);a.setBlock(85,30,75,'glass');
 for(let i=0;i<20;i++)a.tick(now+=50);
 assert(a.player.pos.y<30,'solid roof collision is retained');
@@ -76,7 +76,7 @@ assert(a.campusActors.every(actor=>!actor.nameTag||!actor.nameTag.visible),'floa
 assert.equal(a.readWorldBackup(a.worldBackupText()).areaLabels.length,40);
 a.modeTo('creative');a.startGame();a.player.flying=false;
 const beforeForm={selected:a.selected,view:a.view};
-for(const tagName of ['INPUT','SELECT','TEXTAREA','BUTTON'])for(const code of ['KeyF','KeyV','Digit2','BracketRight','Space']){
+for(const tagName of ['INPUT','SELECT','TEXTAREA','BUTTON'])for(const code of ['KeyF','KeyC','Digit2','BracketRight','Space']){
   for(const fn of events.keydown)fn({code,target:{tagName},preventDefault(){}});
   assert.equal(a.player.flying,false,'editing a form never toggles flight');assert.equal(a.view,beforeForm.view);
   assert.equal(a.selected,beforeForm.selected);assert(!a.keys.Space,'space in a form does not move the player');

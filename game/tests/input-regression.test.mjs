@@ -52,9 +52,9 @@ const context=vm.createContext({
 const script=html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace("import * as THREE from 'three';",'');
 const instrumented=script+`\n globalThis.api={
  startGame,releaseInput,setControlsLayout,readWorldBackup,worldBackupText,environmentWantsTouch,touchLayoutOn,menuBtn,renderer,lookLayer,stick,btnJump,
- modeSelect,setGraphics,player,tick,
+ modeSelect,setGraphics,player,tick,flyTag,
  get lookActive(){return lookActive;},get started(){return started;},get inputEpoch(){return inputEpoch;},get controls(){return controlsLayout;},
- get movement(){return keys;},get graphics(){return graphics;},
+ get movement(){return keys;},get graphics(){return graphics;},get view(){return view;},
  modeTo(v){modeSelect.value=v;for(const change of modeSelect.events.change||[])change();}
 };`;
 vm.runInContext(instrumented,context);
@@ -309,4 +309,56 @@ assert.equal(a.movement.ArrowUp,false,'losing focus releases arrow movement');
 assert.equal(press('ArrowRight'),false,'arrows do not capture page scrolling while paused');
 assert.equal(a.movement.ArrowRight,false,'arrows cannot start movement while paused');
 
-console.log('PASS: input regression (desktop, phone, iPad, touch laptop, saved controls, both modes, WASD and arrows).');
+// Sprint and vertical flight must work together without one changing the other.
+a.startGame();
+for(const sprint of ['ShiftLeft','ShiftRight']){
+ readyToMove();press('KeyW');press(sprint);a.tick(now+=50);
+ assert.equal(a.player.pos.z,-.4,`${sprint} speeds up horizontal flight`);
+ assert.equal(a.player.pos.y,35,`${sprint} does not make flight descend`);
+ press('Space');a.tick(now+=50);
+ assert.equal(a.player.pos.y,35.4,'Space can climb while sprinting');
+ release('Space');press('KeyV');a.tick(now+=50);
+ assert.equal(a.player.pos.y,35,'V can descend while sprinting');
+ release('KeyV');a.tick(now+=50);
+ assert.equal(a.player.pos.y,35,'releasing V restores hover even while sprinting');
+ readyToMove();a.player.flying=false;press('KeyW');press(sprint);a.tick(now+=50);
+ assert.equal(a.player.vel.z,-8,`${sprint} still sprints on foot`);
+}
+readyToMove();press('Space');press('KeyV');a.tick(now+=50);
+assert.equal(a.player.pos.y,35,'opposing up and down inputs cancel instead of favoring descent');
+readyToMove();const originalView=a.view;
+press('KeyV');a.tick(now+=50);
+assert.equal(a.player.pos.y,34.75,'V descends');
+assert.equal(a.view,originalView,'V descent does not change the camera');
+release('KeyV');press('KeyC');a.tick(now+=50);
+assert.notEqual(a.view,originalView,'C changes the camera');
+assert.equal(a.player.pos.y,34.75,'C changes no flight height');
+const changedView=a.view;
+for(const fn of events.keydown)fn({code:'KeyC',repeat:true,preventDefault(){}});
+assert.equal(a.view,changedView,'holding C does not repeatedly toggle the camera');
+release('KeyC');press('KeyC');assert.equal(a.view,originalView,'a second deliberate C press restores the view');
+release('KeyC');press('KeyE');a.tick(now+=50);
+assert.equal(a.player.pos.y,34.75,'the superseded E key no longer descends');
+readyToMove();a.player.flying=false;press('KeyF');
+assert.equal(a.player.flying,true,'one F press starts flight');
+assert.match(a.flyTag.textContent,/V down · SHIFT faster/,'the actual flight cue agrees with the controls');
+for(const fn of events.keydown)fn({code:'KeyF',repeat:true,preventDefault(){}});
+assert.equal(a.player.flying,true,'holding F does not repeatedly toggle flight');
+release('KeyF');press('KeyF');assert.equal(a.player.flying,false,'a second deliberate press lands');
+assert.equal(a.flyTag.textContent,'Flight OFF');
+apply(phone);a.startGame();a.player.flying=false;
+document.getElementById('btnFly').events.touchstart[0]({preventDefault(){}});
+assert.match(a.flyTag.textContent,/JUMP up · DOWN down/,'touch flight cue names the visible touch buttons');
+apply(desktop);a.startGame();
+readyToMove();
+const down=document.getElementById('btnDown');
+down.events.touchstart[0]({preventDefault(){}});
+assert.equal(a.movement.KeyV,true,'touch DOWN uses the independent descent input');
+assert.equal(a.movement.ShiftLeft,false,'touch DOWN never turns sprint on');
+a.tick(now+=50);assert.equal(a.player.pos.y,34.75,'touch DOWN descends at normal flight speed');
+down.events.touchend[0]();a.tick(now+=50);assert.equal(a.player.pos.y,34.75,'touch release stops descent');
+press('KeyV');for(const fn of events.blur)fn();
+assert.equal(a.movement.KeyV,false,'losing focus clears descent');
+assert.equal(a.started,false);
+
+console.log('PASS: input regression (desktop, phone, iPad, touch laptop, saved controls, both modes, WASD/arrows, independent sprint/flight/descent).');
