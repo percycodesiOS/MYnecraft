@@ -372,7 +372,7 @@ assert.equal(a.inventoryOpen,true);assert.equal(a.started,false);
 assert.equal(a.movement.KeyW,false,'opening the picker releases movement');
 assert.equal(a.inventoryOverlay.hidden,false);
 assert.equal(a.renderer.domElement.inert,true,'the world cannot receive input behind the picker');
-assert.equal(a.inventoryChoices.length,14,'all existing materials are available without a new catalog');
+assert.equal(a.inventoryChoices.length,28,'legacy materials and the new wood, concrete and ore variations are available');
 assert(a.inventoryChoices.every(c=>!c.button.disabled&&c.count.textContent==='Unlimited'));
 const pausedPosition=a.player.pos.clone();a.tick(now+=50);assert(a.player.pos.equals(pausedPosition));
 for(const fn of events.keydown)fn({code:'KeyI',repeat:true,preventDefault(){}});

@@ -30,7 +30,7 @@ const instrumented=script+`\n globalThis.api={WORLD,instMeshes,buildMeshes,playe
  buses,updateBuses,busRouteDistance,busRoutePoint,busAtKerb,busStopDistances,BUS_ARRIVE,BUS_COUNT,BUS_STAGGER,BUS_DRIVE_IN,BUS_DWELL,BUS_DRIVE_OUT,BUS_VISIT,BUS_LOOP,busRouteLength,BUS_ROUTE,
  playerAvatar,staffLook,viewArms,viewModel,macekBodies,macekClothes,identityStatus,worldClockEl,setView,updatePlayerAvatar,viewSelect,viewBtn,groundSurface,inBusYard,
  bubble,showBubble,SHIELDS_LINES,heightAt,nearestWalkPoint,walkFeet,
- eiler,eilerPatrol,entranceStaffBounds,canonicalCampusName,updateCompanions,companionAnchor,saveState,worldBounds,sleeves,sleevesBounds,sleevesPatrol,js,jsBounds,jsStops,jsRoutine,updateJs,playgroundSwings,scene,get view(){return view;},get macekOutfit(){return macekOutfit;},
+ eiler,eilerPatrol,entranceStaffBounds,canonicalCampusName,updateCompanions,companionAnchor,companionPair,saveState,worldBounds,sleeves,sleevesBounds,sleevesPatrol,js,jsBounds,jsStops,jsRoutine,updateJs,playgroundSwings,scene,get view(){return view;},get macekOutfit(){return macekOutfit;},
  setTime(t){dayTime=t;}};`;
 vm.runInContext(instrumented,context);
 const a=context.api;
@@ -84,36 +84,28 @@ for(let i=0;i<2600;i++){
 }
 assert(maxShieldsDistance>1.5,'Officer Shields actually takes a short walk');
 assert(maxShieldsDistance<6,'patrol stays near the front desk');assert(sawSeated&&sawStanding);
-// Dogs follow the campus Mr. Macek. A distant or flying player does not take them away.
-a.macek.pos.set(25.5,5,-20.5);a.macek.group.rotation.y=Math.PI;a.macek.yaw=Math.PI;
-a.player.pos.set(110,36,70);a.player.yaw=0;a.player.flying=true;
+// The protected dogs now return to the player's last grounded position.
+// Full pair formation, obstacle, stairs and pause regression is exercised in
+// paired-companions.test.mjs against the same real game source.
+a.player.pos.set(25.5,6.7,-20.5);a.player.yaw=0;a.player.flying=false;
 const before=a.ellie.pos.clone();a.updateCompanions(.05);
-assert(a.ellie.pos.distanceTo(before)<0.4,'one frame walks toward Mr. Macek instead of snapping there');
-let maxStep=0;const samples=[[a.ellie,a.ellie.pos.x,a.ellie.pos.y,a.ellie.pos.z],[a.percy,a.percy.pos.x,a.percy.pos.y,a.percy.pos.z]];
-for(let i=0;i<900;i++){
+assert(a.ellie.pos.distanceTo(before)<.4,'a return begins by walking, never teleporting');
+let returned=false;
+for(let i=0;i<1800;i++){
  a.updateCompanions(.05);
- for(const s of samples){maxStep=Math.max(maxStep,Math.hypot(s[0].pos.x-s[1],s[0].pos.y-s[2],s[0].pos.z-s[3]));s[1]=s[0].pos.x;s[2]=s[0].pos.y;s[3]=s[0].pos.z;}
+ if(a.companionPair.phase==='rest'){returned=true;break;}
 }
-assert(maxStep<1.2,'the trail stays on walked steps');
+assert(returned,'saved companions find the grounded player');
 for(const dog of [a.ellie,a.percy]){
  assert(dog.invulnerable);
- assert(Math.hypot(dog.pos.x-a.macek.pos.x,dog.pos.z-a.macek.pos.z)<5,dog.name+' reaches the distant Mr. Macek');
- assert(Math.hypot(dog.pos.x-a.player.pos.x,dog.pos.z-a.player.pos.z)>40,dog.name+' ignores the player');
- assert.equal(a.walkFeet(Math.floor(dog.pos.x),Math.floor(dog.pos.z),dog.pos.y),dog.pos.y);
+ assert(Math.hypot(dog.pos.x-a.player.pos.x,dog.pos.z-a.player.pos.z)<5);
+ assert.equal(a.getBlock(Math.floor(dog.pos.x),Math.ceil(dog.pos.y),Math.floor(dog.pos.z)),undefined);
 }
-assert(Math.hypot(a.ellie.pos.x-a.percy.pos.x,a.ellie.pos.z-a.percy.pos.z)>1,'Ellie and Percy keep different trailing offsets');
-assert(Math.hypot(a.companionAnchor.x-a.macek.pos.x,a.companionAnchor.z-a.macek.pos.z)<.01);
-a.player.pos.set(70,35,50);
+assert(Math.hypot(a.ellie.pos.x-a.percy.pos.x,a.ellie.pos.z-a.percy.pos.z)>1,'the pair keeps separate places');
+const home={...a.companionAnchor};a.player.flying=true;a.player.pos.set(70,35,50);
 for(let i=0;i<80;i++)a.updateCompanions(.05);
-assert(Math.abs(a.companionAnchor.y-a.macek.pos.y)<.01,'a flying player does not lift the anchor');
-for(const dog of [a.ellie,a.percy])assert(dog.pos.y<8,'dogs stay on Mr. Macek\'s floor while the player is in the air');
-a.macek.pos.set(47.5,11,16.5);a.macek.group.rotation.y=0;
-for(let i=0;i<1200;i++)a.updateCompanions(.05);
-for(const dog of [a.ellie,a.percy]){
- assert(Math.abs(dog.pos.y-a.macek.pos.y)<2,dog.name+' climbs to Mr. Macek');
- assert(Math.hypot(dog.pos.x-a.macek.pos.x,dog.pos.z-a.macek.pos.z)<6);
- assert.equal(a.getBlock(Math.floor(dog.pos.x),Math.round(dog.pos.y),Math.floor(dog.pos.z)),undefined);
-}
+assert.equal(a.companionAnchor.y,home.y,'flying never lifts the grounded return point');
+assert.equal(a.companionAnchor.x,home.x);assert.equal(a.companionAnchor.z,home.z);
 // Sleeves is visibly bigger than KaY, still miniature, with one patterned right
 // arm and a compact walking route on the front lawn. Existing actor slots
 // and old saves retain their identities when this twelfth character is added.

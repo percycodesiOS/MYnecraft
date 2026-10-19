@@ -20,7 +20,27 @@ Keep both working. The school has approved the existing CyberGrader.io address, 
 
 Both Pages sites share the origin `https://percycodesios.github.io`. The game saves to `localStorage` key `mynecraft_save_v1`, which is scoped by origin rather than path, so a player's autosave opens at either address in the same browser. The game uses no cookies, IndexedDB or service worker. Do not change the save key, move the site to another domain, or add path-scoped storage without a migration. Download Save (formerly Download World) / Load World JSON backups remain the way to move a world to another device or browser. The backup format is unchanged, so older MYnecraft downloads still load. These files cannot be imported into Minecraft. Loading validates the file before asking to replace the current local world; canceling or a failed storage write preserves that world. Download and check a copy of the current world first to keep both.
 
+Creative and regular Embrace the Challenge continue to share the campus world. Hardcore is directly selectable from the landing page or `game/mynecraft.html?mode=hardcore`; completing the regular challenge is not required. It uses a separate resource world and progress stored in the `hardcoreWorld` property of the same save envelope. `activeWorld` records which world to reopen. Existing campus fields stay at the top level for legacy compatibility. Download Save includes both worlds; importing a backup replaces the saved envelope after confirmation rather than merging worlds. Older backups have no Hardcore slot and keep their original campus build.
+
 Because the two addresses share one save, keep them on the same release. An older compatibility copy could otherwise load and rewrite a save made by a newer primary build.
+
+## Building and play options
+
+- **Creative:** unlimited building in the campus world, with flight and coordinate travel.
+- **Embrace the Challenge:** the existing campus goals stay the same: collect 10 wood, place 12 blocks, and find CIRC.
+- **Embrace the Challenge: Hardcore:** a separate peaceful resource world with a village, crafting, a mine, building goals, and unlockable materials, animals, and existing teacher characters. Its name describes progression and resource limits, not combat or permanent death. Only the player's own qualifying construction completes building goals.
+- **Materials and depth:** cherry, spruce, and pine wood variations, concrete colors, copper and iron ores, and mineable terrain down to the protected floor at Y = -40. Deep terrain is virtual until exposed, keeping the initial world size bounded. Excavations are saved as block edits and their exposed faces are rebuilt on load.
+- **Play activities:** Use E or the on-screen action to shoot at a basketball hoop or enter/leave the small car. Choose unlocked animals in Inventory; fish require a player-built pond or tank and can only be placed in water. Activities are stored separately with the campus and Hardcore worlds.
+- **Percy and Ellie:** In the campus world, the pair run short loops together and return to the current player. They travel side by side where space permits, use narrow paths safely, and stay on the ground when the player flies. The menu pauses their routine.
+- **Help:** H toggles the on-screen movement guide and mouse hint. The menu's Show movement help checkbox provides the same choice on touch devices.
+- **Day and night:** Auto sleep is the default. At 6:00 PM the world rests for one active second, then starts a new day at 6:00 AM. The menu and inventory pause that second. Always day keeps a bright sky while the normal schedule clock advances. Full day/night retains the original 20-minute cycle. The setting is saved with the world; campus schedules continue to use game time.
+- **Cafeteria cleanup:** A procedural cafeteria custodian rides a gray floor scrubber from 2:00 PM to 3:00 PM each game day. The route stays in the main cafeteria, clears the visible tables and stools, and stops for student-placed obstacles. It pauses with the game, is restored from game time, and does not appear in Hardcore. No source photograph or private identity is included.
+
+Progression rules live in `game/hardcore-rules.js`, resource terrain in `game/hardcore-world.js`, additional play activities in `game/play-activities.js`, and the timed cafeteria custodian in `game/cafeteria-cleaner.js`. Keep these local scripts available at both release addresses with the main game.
+
+## Group-room development status
+
+`game/rooms.html` and `game/room-client.js` connect to the separate Node service in `server/room-service.mjs`; see `server/README.md`. This service is not hosted by GitHub Pages and no public service URL is configured in this release. Local verification covers teacher admission, open/close, scoped sessions, authoritative block edits, and isolation from personal saves. Chat and text-sign fields are absent from the room protocol. The service holds rooms in memory and requires manual teacher review unless a server-side detector is supplied. Automated recognition of words made from blocks, actual screenshot capture/delivery, durable storage, verified student identity, and full-class load validation remain incomplete. Do not represent this as the completed automatic classroom-safeguard system.
 
 ## Develop and verify
 

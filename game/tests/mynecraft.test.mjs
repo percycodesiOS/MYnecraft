@@ -29,7 +29,7 @@ const instrumented=script+`\n globalThis.api={WORLD,instMeshes,buildMeshes,playe
  eddie,eddieRoost,eddiePerch,eddieFacing,updateEddie,EDDIE_ROCK,EDDIE_ROOF,EDDIE_DUSK,EDDIE_DAWN,
  buses,updateBuses,busRouteDistance,busRoutePoint,busAtKerb,busStopDistances,BUS_ARRIVE,BUS_COUNT,BUS_STAGGER,BUS_DRIVE_IN,BUS_DWELL,BUS_DRIVE_OUT,BUS_VISIT,BUS_LOOP,busRouteLength,BUS_ROUTE,
  get playerAvatar(){return playerAvatar;},playerAvatars,get playerCharacter(){return playerCharacter;},staffInputs,staffLook,setPlayerCharacter,viewArms,viewModel,macekBodies,macekClothes,identityStatus,worldClockEl,setView,updatePlayerAvatar,viewSelect,viewBtn,groundSurface,inBusYard,
- bubble,showBubble,SHIELDS_LINES,heightAt,nearestWalkPoint,walkFeet,eiler,entranceStaffBounds,cookie,cookieOnDuty,COOKIE_ARRIVE,COOKIE_DEPART,cookiePatrol,updateCompanions,companionAnchor,
+ bubble,showBubble,SHIELDS_LINES,heightAt,nearestWalkPoint,walkFeet,eiler,entranceStaffBounds,cookie,cookieOnDuty,COOKIE_ARRIVE,COOKIE_DEPART,cookiePatrol,updateCompanions,companionAnchor,companionPair,
  get view(){return view;},get macekOutfit(){return macekOutfit;},
  setTime(t){dayTime=t;},get movement(){return keys;},releaseInput,setControlsLayout,controlsSelect,controlsMenu,lookLayer,stick,btnJump,btnDown,btnFly,btnBreak,btnPlace,touchUI,travelLimits,SIZE,EAST_EDGE,ORIGIN_SIZE,ORIGIN_EAST,inPlay,worldEdgeText,menuBtn};`;
 vm.runInContext(instrumented,context);
@@ -177,7 +177,7 @@ a.buildMeshes();assert.deepEqual([...a.faceSlots].map(([id,v])=>id+':'+v.bucketK
 const originalIterator=a.WORLD[Symbol.iterator];a.WORLD[Symbol.iterator]=()=>{throw new Error('Block edit attempted whole-world scan');};
 const editTimes=[];for(let i=0;i<100;i++){const start=performance.now();a.setBlock(-24,29,-20,i%2?'snow':null);a.updateBlockMeshes(-24,29,-20);editTimes.push(performance.now()-start);}
 a.WORLD[Symbol.iterator]=originalIterator;editTimes.sort((a,b)=>a-b);console.log('Incremental edit CPU median/p95 ms:',editTimes[50].toFixed(3),editTimes[95].toFixed(3));
-assert.equal(a.hotbar.children.length,14);
+assert.equal(a.hotbar.children.length,28);
 const event={preventDefault(){}};
 a.startGame();
 const beforeTravel=a.player.pos.clone();
@@ -266,92 +266,29 @@ a.player.pos.set(47.5,6.7,35.5);
 for(let i=0;i<420;i++){a.setTime(.43+i*.2/1200);a.updateCampus(.2);}
 assert(a.sirD.pos.distanceTo(a.macek.pos)<3.1,'sunset rendezvous');
 assert(Math.abs(a.sirD.pos.z-26.5)<1,'meeting at entrance');
-for(const dog of [a.ellie,a.percy]){
- assert(dog.invulnerable);
- assert(Math.hypot(dog.pos.x-a.macek.pos.x,dog.pos.z-a.macek.pos.z)<6,dog.name+' stays with Mr. Macek at the meetup');
- assert(Math.abs(dog.pos.y-a.macek.pos.y)<2,dog.name+' stays on a floor beside Mr. Macek');
- assert.equal(a.walkFeet(Math.floor(dog.pos.x),Math.floor(dog.pos.z),dog.pos.y),dog.pos.y);
-}
-assert(Math.hypot(a.ellie.pos.x-a.percy.pos.x,a.ellie.pos.z-a.percy.pos.z)>0.9,'dogs keep separate spots beside Mr. Macek');
+for(const dog of [a.ellie,a.percy])assert(dog.invulnerable,'campus companions stay protected');
+assert(a.kay.pos.distanceTo(a.sirD.pos)<4,'KaY still follows Sir D');
 {
- a.player.pos.set(120,28,80);a.player.flying=true;a.player.vel.set(0,0,0);a.setTime(.22);
- let maxStep=0;const prev=new Map([[a.ellie,a.ellie.pos.clone()],[a.percy,a.percy.pos.clone()]]);
- for(let i=0;i<300;i++){
-  a.updateCampus(1/60);
-  for(const dog of [a.ellie,a.percy]){
-   maxStep=Math.max(maxStep,dog.pos.distanceTo(prev.get(dog)));prev.get(dog).copy(dog.pos);
-   const npcGap=Math.hypot(dog.pos.x-a.macek.pos.x,dog.pos.z-a.macek.pos.z);
-   const playerGap=Math.hypot(dog.pos.x-a.player.pos.x,dog.pos.z-a.player.pos.z);
-   assert(playerGap>npcGap+15,dog.name+' stays with Mr. Macek while the player is across the map');
-  }
- }
- assert(maxStep<0.8,'dogs walk each frame instead of snapping across the route');
- for(const dog of [a.ellie,a.percy]){
-  const feet=a.walkFeet(Math.floor(dog.pos.x),Math.floor(dog.pos.z),dog.pos.y);
-  assert(feet!==null&&Math.abs(feet-dog.pos.y)<1.05,dog.name+' is standing on a walkable cell');
- }
- for(const dog of [a.ellie,a.percy])assert(Math.hypot(dog.pos.x-a.player.pos.x,dog.pos.z-a.player.pos.z)>30,dog.name+' does not follow the player across the map');
- a.modeTo('survival');a.player.flying=true;a.player.pos.set(-70,40,-60);
- for(let i=0;i<80;i++)a.updateCampus(.1);
- for(const dog of [a.ellie,a.percy]){
- const npcGap=Math.hypot(dog.pos.x-a.macek.pos.x,dog.pos.z-a.macek.pos.z);
- const playerGap=Math.hypot(dog.pos.x-a.player.pos.x,dog.pos.z-a.player.pos.z);
- assert(playerGap>npcGap+15,dog.name+' keeps Mr. Macek in survival');
-}
- a.modeTo('creative');a.player.flying=true;
-}
-{
+ // Existing saved dog positions remain valid. New companion behavior is a
+ // paired outing that returns to the player, not the independent Mr. Macek NPC.
  const dogSave={edits:{'25,20,25':'snow'},mode:'creative',dayTime:.3,health:20,
-  player:{x:120,y:22,z:70,yaw:1,pitch:0,sel:0,flying:true},
-  campus:[{name:'Mr. Macek',x:46.5,y:5,z:29.5,patrolIndex:0},{name:'Ellie',x:15.5,y:5,z:12.5,patrolIndex:0},{name:'Percy',x:18.5,y:5,z:12.5,patrolIndex:0}]};
+  player:{x:46.5,y:6.7,z:29.5,yaw:0,pitch:0,sel:0,flying:false},
+  campus:[{name:'Mr. Macek',x:54.5,y:5,z:-10.5,patrolIndex:0},{name:'Ellie',x:15.5,y:5,z:12.5,patrolIndex:0},{name:'Percy',x:18.5,y:5,z:12.5,patrolIndex:0}]};
  const dogContext=vm.createContext({...context,api:undefined,localStorage:{getItem:()=>JSON.stringify(dogSave),setItem(){},removeItem(){}}});
  vm.runInContext(instrumented,dogContext);
- const d=dogContext.api;
- assert(Math.hypot(d.ellie.pos.x-d.macek.pos.x,d.ellie.pos.z-d.macek.pos.z)>15,'a saved world can reopen with the dogs away from Mr. Macek');
- const start=d.ellie.pos.clone();d.updateCompanions(.05);
- assert(d.ellie.pos.distanceTo(start)<1,'reload does not teleport a dog to Mr. Macek');
- d.player.pos.set(-90,30,-80);d.player.flying=true;
- for(let i=0;i<500;i++)d.updateCompanions(.1);
+ const d=dogContext.api,start=d.ellie.pos.clone();d.updateCompanions(.05);
+ assert(d.ellie.pos.distanceTo(start)<1,'reload walks from saved positions instead of teleporting');
+ let returned=false;
+ for(let i=0;i<1500;i++){
+  d.updateCompanions(.05);
+  if(d.companionPair.phase==='rest'){returned=true;break;}
+ }
+ assert(returned,'both saved companions return to the player');
  for(const dog of [d.ellie,d.percy]){
-  assert(dog.invulnerable);
-  assert(Math.hypot(dog.pos.x-d.macek.pos.x,dog.pos.z-d.macek.pos.z)<6,dog.name+' catches the reloaded Mr. Macek');
-  assert(Math.hypot(dog.pos.x-d.player.pos.x,dog.pos.z-d.player.pos.z)>40);
+  assert(dog.invulnerable);assert(Math.hypot(dog.pos.x-d.player.pos.x,dog.pos.z-d.player.pos.z)<5);
+  const feet=d.walkFeet(Math.floor(dog.pos.x),Math.floor(dog.pos.z),dog.pos.y);
+  assert(feet!==null&&Math.abs(feet-dog.pos.y)<1.05,'return uses walkable terrain');
  }
- for(let i=0;i<120;i++)d.updateCampus(.1);
- for(const dog of [d.ellie,d.percy]){
-  const npcGap=Math.hypot(dog.pos.x-d.macek.pos.x,dog.pos.z-d.macek.pos.z);
-  const playerGap=Math.hypot(dog.pos.x-d.player.pos.x,dog.pos.z-d.player.pos.z);
-  assert(playerGap>npcGap+15,dog.name+' keeps the reloaded Mr. Macek while he patrols');
- }
-}
-assert(a.kay.pos.distanceTo(a.sirD.pos)<4,'KaY follows Sir D');
-{
- // A stationary-target test misses dogs choosing the wrong side of a raised
- // walkway while the NPC keeps moving. The normal route now serves CIRC;
- // retain this explicit two-floor/outdoor fixture to exercise the broader
- // companion navigation mechanics, with the player far away.
- const patrolSave=JSON.stringify({mode:'creative',dayTime:.22,player:{x:120,y:40,z:80,flying:true},
-  campus:[{name:'Mr. Macek',x:47.5,y:5,z:29.5,patrolIndex:0},{name:'Ellie',x:47.5,y:5,z:31.5,patrolIndex:0},{name:'Percy',x:45.5,y:5,z:31.5,patrolIndex:0}]});
- const patrolContext=vm.createContext({...context,api:undefined,localStorage:{getItem:()=>patrolSave,setItem(){},removeItem(){}}});
- vm.runInContext(instrumented,patrolContext);
- const p=patrolContext.api,visited=new Set(),upstairs=new Set();
- p.macekPatrol.splice(0,p.macekPatrol.length,[46,5,18],[47,11,16],[46,5,29],[25,p.heightAt(25,12)+1,12],[15,p.heightAt(15,12)+1,12]);
- const previous=[p.ellie.pos.clone(),p.percy.pos.clone()];let maxGap=0,maxStep=0;
- for(let i=0;i<18000;i++){
-  p.updateCampus(1/60);visited.add(p.macek.patrolIndex);
-  for(const [j,dog] of [p.ellie,p.percy].entries()){
-   const gap=dog.pos.distanceTo(p.macek.pos);maxGap=Math.max(maxGap,gap);
-   maxStep=Math.max(maxStep,dog.pos.distanceTo(previous[j]));previous[j].copy(dog.pos);
-   if(dog.pos.y>10)upstairs.add(dog.name);
-   assert(gap<8,`${dog.name} stays with the moving NPC at ${(i/60).toFixed(2)}s (gap ${gap.toFixed(2)})`);
-   assert(dog.pos.distanceTo(p.player.pos)>40,'a far flying player never draws a dog away');
-  }
- }
- assert.equal(visited.size,5,'the NPC completes every normal patrol destination');
- assert.equal(upstairs.size,2,'both companions use the stairs during the moving patrol');
- assert(maxStep<1.1,'following the recorded trail never teleports a dog across the map');
- for(const dog of [p.ellie,p.percy])assert(dog.invulnerable);
- console.log('Moving-NPC companion maximum gap/step:',maxGap.toFixed(3),maxStep.toFixed(3));
 }
 assert.equal(a.campusActors.map(n=>n.name).join(','),'Sir D,Mr. Macek,KaY,Ellie,Percy,Ms. Micco,Officer Shields,Mr. B,Mr. Eiler,Cookie Man,School Officer,Sleeves,js,Ms. Eriksen,Mr. Mullet,Mr. Wingenbach,Ms. McMichael');
 assert(a.insideBounds(a.micco.pos.x,a.micco.pos.z,a.campusBounds),'Ms. Micco stays on campus');
@@ -798,7 +735,7 @@ a.resetBtn.events.click[0]();assert(reloaded);assert.equal(saved,null);a.persist
 // and z -64..64 (129): 20,769. New columns are x -96..128 (225) and z -96..96 (193): 43,425.
 assert.equal(a.ORIGIN_SIZE,64);assert.equal(a.ORIGIN_EAST,96);
 assert.equal(a.SIZE,96);assert.equal(a.EAST_EDGE,128);
-assert.equal(a.travelLimits.minX,-95);assert.equal(a.travelLimits.maxX,127);assert.equal(a.travelLimits.minZ,-95);assert.equal(a.travelLimits.maxZ,95);assert.equal(a.travelLimits.minY,-6);assert.equal(a.travelLimits.maxY,60);
+assert.equal(a.travelLimits.minX,-95);assert.equal(a.travelLimits.maxX,127);assert.equal(a.travelLimits.minZ,-95);assert.equal(a.travelLimits.maxZ,95);assert.equal(a.travelLimits.minY,-38);assert.equal(a.travelLimits.maxY,60);
 assert.match(a.worldEdgeText(),/X −95 to 127, Z −95 to 95/);
 assert(a.getBlock(-96,-8,0),'west edge column is generated');
 assert(a.getBlock(128,-8,96),'far corner column is generated');
@@ -820,6 +757,7 @@ a.modeTo('creative');assert.equal(a.travelTo(110,30,80),'');
 assert.equal(a.player.pos.x,110);assert.equal(a.player.pos.z,80);
 assert.match(a.travelTo(128,30,0),/limits/);assert.match(a.travelTo(-96,30,0),/limits/);
 assert.equal(a.player.pos.x,110,'rejected travel past the new edge keeps the last valid position');
+a.setTime(.2); // Placement and bounds checks run during daylight, outside the auto-sleep transition.
 a.startGame();a.player.flying=true;a.player.pos.set(127.5,30,.5);a.player.yaw=-Math.PI/2;a.movement.KeyD=true;
 for(let i=0;i<40;i++)a.tick(5000+i);
 assert(a.player.pos.x<=a.EAST_EDGE+.5,'walking stops at the east terrain edge');
