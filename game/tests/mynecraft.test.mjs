@@ -177,7 +177,7 @@ a.buildMeshes();assert.deepEqual([...a.faceSlots].map(([id,v])=>id+':'+v.bucketK
 const originalIterator=a.WORLD[Symbol.iterator];a.WORLD[Symbol.iterator]=()=>{throw new Error('Block edit attempted whole-world scan');};
 const editTimes=[];for(let i=0;i<100;i++){const start=performance.now();a.setBlock(-24,29,-20,i%2?'snow':null);a.updateBlockMeshes(-24,29,-20);editTimes.push(performance.now()-start);}
 a.WORLD[Symbol.iterator]=originalIterator;editTimes.sort((a,b)=>a-b);console.log('Incremental edit CPU median/p95 ms:',editTimes[50].toFixed(3),editTimes[95].toFixed(3));
-assert.equal(a.hotbar.children.length,28);
+assert.equal(a.hotbar.children.length,36);
 const event={preventDefault(){}};
 a.startGame();
 const beforeTravel=a.player.pos.clone();

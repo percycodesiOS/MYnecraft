@@ -82,3 +82,32 @@ for(const tagName of ['INPUT','SELECT','TEXTAREA','BUTTON'])for(const code of ['
   assert.equal(a.selected,beforeForm.selected);assert(!a.keys.Space,'space in a form does not move the player');
 }
 console.log('PASS: working water lift, descent, touch DOWN, air, gaps and roof collisions; saved/editable/bounded area signs, legacy backups and two building labels.');
+
+// Exercise real placement and save paths, including rejection of a whole kit.
+vm.runInContext(`
+  for(let x=76;x<=84;x++)for(let z=76;z<=84;z++){
+    setBlock(x,15,z,'grass');for(let y=16;y<=25;y++)setBlock(x,y,z,null);
+  }
+  player.pos.set(80.5,21,84.5);camera.position.copy(player.pos);camera.lookAt(80.5,15.99,80.5);
+  chosenGarden='oak';started=true;doPlace();
+  globalThis.gardenResult={trunk:getBlock(80,16,80),canopy:getBlock(80,20,80),solidFlower:null};
+  setBlock(78,16,78,'poppy');recordEdit(78,16,78,'poppy');updateBlockMeshes(78,16,78);
+  gardenResult.solidFlower=isSolid(78,16,78);
+  gardenResult.flowerFaces=[...faceSlots.keys()].filter(k=>k.startsWith('78,16,78,'));
+  gardenResult.backup=readWorldBackup(worldBackupText());
+  for(let x=76;x<=84;x++)for(let z=76;z<=84;z++)for(let y=16;y<=25;y++)setBlock(x,y,z,null);
+  setBlock(80,18,80,'glass');camera.lookAt(80.5,15.99,80.5);doPlace();
+  gardenResult.blockedTrunk=getBlock(80,16,80);gardenResult.obstacle=getBlock(80,18,80);
+  gardenResult.message=document.getElementById('status').textContent;
+`,context);
+const garden=context.gardenResult;
+assert.equal(garden.trunk,'wood','one PLACE produces a complete tree');
+assert.equal(garden.canopy,'leaves');
+assert.equal(garden.solidFlower,false,'flowers do not block walking');
+assert.equal(garden.flowerFaces.length,2,'flowers render as two crossed sprites, not cubes');
+assert.equal(garden.backup.edits['80,16,80'],'wood','tree parts use the existing world backup');
+assert.equal(garden.backup.edits['78,16,78'],'poppy','flower materials round-trip');
+assert.equal(garden.blockedTrunk,undefined,'a blocked kit places no partial trunk');
+assert.equal(garden.obstacle,'glass','a kit never overwrites an existing block');
+assert.match(garden.message,/clear|Aim/);
+console.log('PASS: complete garden placement, atomic collision rejection, flower rendering/collision and save round-trip.');
