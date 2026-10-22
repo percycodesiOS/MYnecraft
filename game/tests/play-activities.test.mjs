@@ -58,3 +58,49 @@ function fixture() {
   f.state({hardcore:true}); f.api.setWorld(); assert.equal(f.api.serialize().cars.hardcore.z,z);
 }
 console.log('PASS: basketball arc and scoring, parked/paused/colliding car, safe exits, habitat-only persistent fish, independent world activities.');
+
+// Celebration starts on a real scored shot, pauses with gameplay, then clears.
+{
+  const f=fixture(); f.api.interact(); f.api.update(.05); f.api.interact();
+  for(let i=0;i<100&&f.api.serialize().score.campus===0;i++)f.api.update(.05);
+  const confetti=f.scene.getObjectByName('Basket confetti');
+  assert(confetti.visible,'a scored basket launches a visible celebration at the hoop');
+  assert.equal(confetti.children.length,36,'particle count stays bounded on school tablets');
+  const y=confetti.children[0].position.y;
+  f.state({active:false});f.api.update(.05);assert.equal(confetti.children[0].position.y,y);
+  f.state({active:true});for(let i=0;i<60;i++)f.api.update(.05);
+  assert(!confetti.visible,'confetti clears after its short celebration');
+}
+// Fish grow only in water during play, and their age survives a save/load.
+{
+  const f=fixture();f.api.spawnAnimal('fish',{x:1.5,y:5.5,z:1.5});
+  const mesh=f.scene.getObjectByName('Activity animal: fish');assert.equal(mesh.scale.x,.55);
+  for(let i=0;i<100;i++)f.api.update(.05);
+  const age=f.api.serialize().animals[0].age;
+  f.state({active:false});f.api.update(.05);assert.equal(f.api.serialize().animals[0].age,age);
+  f.state({active:true,water:false});f.api.update(.05);assert.equal(f.api.serialize().animals[0].age,age,'dry tanks pause growth');
+  f.state({water:true});for(let i=0;i<2401;i++)f.api.update(.05);
+  assert.equal(f.api.serialize().animals[0].age,120);assert.equal(mesh.scale.x,1);
+  const saved=f.api.serialize(),f2=fixture();assert(f2.api.restore(saved));assert.equal(f2.api.serialize().animals[0].age,120);
+  const legacy=JSON.parse(JSON.stringify(saved));delete legacy.catches;delete legacy.animals[0].age;
+  assert(f2.api.restore(legacy));assert.equal(f2.api.serialize().animals[0].age,0,'old fish saves remain supported');
+  const invalid=JSON.parse(JSON.stringify(saved));invalid.animals[0].age=-1;assert(!f2.api.restore(invalid));
+  invalid.animals[0].age=Infinity;assert(!scope.MYNE_ACTIVITIES.validateSerialized(invalid));
+}
+// A rod catches grown fish through the real Interact path, never young or dry fish.
+{
+  const f=fixture();f.player.pos.set(1.5,6.7,4);f.player.yaw=0;
+  f.state({unlocked:false});assert(!f.api.equipRod());f.state({unlocked:true});assert(f.api.equipRod());
+  f.api.spawnAnimal('fish',{x:1.5,y:5.5,z:1.5});f.api.interact();
+  for(let i=0;i<50;i++)f.api.update(.05);assert.equal(f.api.serialize().animals.length,1,'young fish cannot be caught');
+  const mature=f.api.serialize();mature.animals[0].age=120;assert(f.api.restore(mature));assert(f.api.equipRod());
+  assert(f.api.interact());assert.equal(f.api.getPrompt(),'Fishing…');
+  f.state({active:false});for(let i=0;i<50;i++)f.api.update(.05);assert.equal(f.api.serialize().animals.length,1,'menu pause cannot finish a catch');
+  f.state({active:true,water:false});f.api.update(.05);assert.equal(f.api.serialize().animals.length,1,'removing water cancels a cast');
+  f.state({water:true});f.api.interact();for(let i=0;i<45;i++)f.api.update(.05);
+  assert.equal(f.api.serialize().animals.length,0);assert.equal(f.api.serialize().catches.campus,1);
+  const saved=f.api.serialize(),f2=fixture();assert(f2.api.restore(saved));assert.equal(f2.api.serialize().catches.campus,1);
+  const bad=JSON.parse(JSON.stringify(saved));bad.catches.campus=-1;assert(!f2.api.restore(bad));
+  f.api.unequipRod();assert(!f.api.isFishing());
+}
+console.log('PASS: scored-basket confetti, saved active-water fish growth, legacy save validation, and paused/cancelled/successful rod catches.');

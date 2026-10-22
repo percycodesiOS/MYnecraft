@@ -10,7 +10,7 @@ const Three=await import(new URL(threeURL,new URL('../mynecraft.html',import.met
 const classicNames=['hardcore-rules.js','hardcore-world.js','play-activities.js'];
 const classics=await Promise.all(classicNames.map(name=>fs.readFile(new URL('../'+name,import.meta.url),'utf8')));
 const source=html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace("import * as THREE from 'three';",'');
-const instrumented=source+`\n globalThis.api={startGame,doBreak,doPlace,castVoxel,setBlock,getBlock,recordEdit,persistSave,worldBackupText,readWorldBackup,restoreWorldBackup,openInventory,closeInventory,refreshInventory,advanceHardcore,player,camera,craftingChoices,animalChoices,inventoryChoices,modeSelect,resetBtn,LEGACY_BLOCK_KEYS,BLOCK_KEYS,
+const instrumented=source+`\n globalThis.api={startGame,doBreak,doPlace,castVoxel,setBlock,getBlock,recordEdit,persistSave,worldBackupText,readWorldBackup,restoreWorldBackup,openInventory,closeInventory,refreshInventory,advanceHardcore,player,camera,craftingChoices,animalChoices,inventoryChoices,gardenChoices,fishingRodChoice,modeSelect,resetBtn,LEGACY_BLOCK_KEYS,BLOCK_KEYS,
 get mode(){return gameMode;},get inventory(){return inventory;},get hardcore(){return hardcore;},get state(){return saveState;},get envelope(){return saveEnvelope;},get activities(){return activities;},get fishUnlocked(){return fishUnlocked;},get inventoryOpen(){return inventoryOpen;},get selectedAnimal(){return chosenAnimal;},get worldIsHardcore(){return isHardcoreWorld;},
 selectBlock(key){selected=BLOCK_KEYS.indexOf(key);chosenAnimal=null;},modeTo(value){modeSelect.value=value;for(const fn of modeSelect.events.change)fn();}};`;
 const json=value=>JSON.parse(JSON.stringify(value));
@@ -99,4 +99,25 @@ test('Hardcore actual UI, world saves, resource gates, and fish habitat integrat
   assert.equal(a.getBlock(27,36,27),'water');assert.equal(a.envelope.edits['25,20,25'],'snow');
   game.context.confirm=()=>true;storage.failWrites=1;const beforeImport=storage.text;assert.throws(()=>a.restoreWorldBackup(exported),/could not save/);assert.equal(storage.text,beforeImport);assert.equal(game.location.reloads,0);
   assert(a.restoreWorldBackup(exported));assert.equal(game.location.reloads,1);assert.equal(JSON.parse(storage.text).hardcoreWorld.activities.animals.length,animalCount+1);assert.equal(JSON.parse(storage.text).edits['25,20,25'],'snow');
+});
+
+
+test('Creative inventory pond kit unlocks fish and a selectable fishing rod',()=>{
+  const game=loadGame({text:null,writes:0,failWrites:0}),a=game.a;a.startGame();
+  for(let x=59;x<=66;x++)for(let z=59;z<=66;z++){
+    a.setBlock(x,35,z,'stone');for(let y=36;y<=41;y++)a.setBlock(x,y,z,null);
+  }
+  a.openInventory();assert(a.fishingRodChoice.disabled);
+  click(a.gardenChoices.find(button=>button.dataset.garden==='pond'));
+  aim(a,62.5,40.5,62.5,true);a.doPlace();
+  assert.equal(a.getBlock(62,37,62),'water');assert.equal(a.getBlock(61,37,62),'stone');
+  assert(a.fishUnlocked,'placing the complete pond runs the real habitat unlock');
+  a.openInventory();assert(!a.fishingRodChoice.disabled);
+  click(a.animalChoices.find(c=>c.kind==='fish').button);
+  aim(a,62.5,40.5,62.5,true);a.doPlace();
+  assert.equal(a.activities.serialize().animals.length,1);
+  a.openInventory();click(a.fishingRodChoice);assert(a.activities.isFishing(),'inventory selection equips the rod after resuming play');
+  a.openInventory();click(a.inventoryChoices[2].button);assert(!a.activities.isFishing(),'choosing a block puts the rod away');
+  assert(a.persistSave());const backup=a.readWorldBackup(a.worldBackupText());
+  assert.equal(backup.activities.animals[0].age,0);assert.equal(backup.activities.catches.campus,0);
 });

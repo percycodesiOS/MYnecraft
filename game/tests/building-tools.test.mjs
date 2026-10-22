@@ -111,3 +111,14 @@ assert.equal(garden.blockedTrunk,undefined,'a blocked kit places no partial trun
 assert.equal(garden.obstacle,'glass','a kit never overwrites an existing block');
 assert.match(garden.message,/clear|Aim/);
 console.log('PASS: complete garden placement, atomic collision rejection, flower rendering/collision and save round-trip.');
+
+// The pond kit has four water cells, a complete floor and enclosing sides.
+vm.runInContext(`globalThis.pondPlan=gardenPlan('pond',80,16,80);`,context);
+const pond=context.pondPlan,cell=(x,y,z)=>pond.find(p=>p.x===x&&p.y===y&&p.z===z)?.block;
+assert.equal(pond.length,32);
+for(let x=79;x<=82;x++)for(let z=79;z<=82;z++){
+  assert.equal(cell(x,16,z),'stone');
+  assert.equal(cell(x,17,z),x===79||x===82||z===79||z===82?'stone':'water');
+}
+assert.equal(pond.filter(c=>c.block==='water').length,4);
+console.log('PASS: inventory pond kit has a full floor, retaining walls and exactly four usable water cells.');
