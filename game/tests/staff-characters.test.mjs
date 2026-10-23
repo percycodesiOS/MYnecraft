@@ -89,6 +89,19 @@ assert(hasColor(a.playerAvatars.mcmichael.body.material[0].map,'#eee6d6'),'McMic
 assert(hasColor(a.playerAvatars.mcmichael.legL.children[0].material[0].map,'#f4f0e7'),'McMichael has contrasting polka dots');
 assert(a.playerAvatars.mcmichael.group.getObjectByName('glasses bridge'),'McMichael retains glasses');
 assert(a.playerAvatars.eriksen.group.getObjectByName('curl'),'Eriksen has curly hair');
+// Kenny's October 23 fixes: even skin, straight hairlines and black pants for Mr. Macek.
+{
+ const macekFace=a.macek.head.material[4].map.image.getContext('2d').colors;
+ for(const blotch of ['#efbd90','#e3ae7d','#c99b72'])assert(!macekFace.has(blotch),'campus Mr. Macek has one even skin tone, no checker or chin patch: '+blotch);
+ assert(!hasColor(a.playerAvatars.macek.head.material[4].map,'#9c7856'),'playable Mr. Macek has no blotchy mouth or chin patches');
+ assert(a.playerAvatars.mullet.group.getObjectByName('straight hairline'),'Mr. Mullet has a clean, straight hairline');
+ assert(!a.playerAvatars.mullet.group.getObjectByName('receding side')&&!a.playerAvatars.mullet.group.getObjectByName('thinning fringe'),'no receding or thinning pieces');
+ assert(a.playerAvatars.wingenbach.group.getObjectByName('straight hairline'),'Mr. Wingenbach has a clean, straight hairline');
+ assert(a.playerAvatars.macek.group.getObjectByName('straight hairline'),'playable Mr. Macek keeps his straight hairline');
+ const rgb=c=>c.startsWith('#')?[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)):c.match(/\d+/g).map(Number);
+ const pants=[...a.macek.legL.children[0].material[0].map.image.getContext('2d').colors].map(rgb);
+ assert(pants.length&&pants.every(([r,g,b])=>Math.max(r,g,b)<=40),'campus Mr. Macek wears solid black trousers');
+}
 // The neutral Student wears a blue star tee and sneakers, and never a staff lanyard or ID.
 assert(hasColor(a.playerAvatars.student.body.material[0].map,'#2f8fd8'),'the Student wears a bright blue tee');
 assert(hasColor(a.playerAvatars.student.body.material[0].map,'#ffd23f'),'with a yellow star');

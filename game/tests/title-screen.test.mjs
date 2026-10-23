@@ -64,11 +64,17 @@ assert.match(landing, /id="howto-button"/);
 assert.equal((landing.match(/<span class="more">/g) || []).length, 3, 'each mode has its short snippet');
 assert.match(landing, /class="tagline"/);
 assert.doesNotMatch(landing, /ec-world-cover\.png/, 'the dog picture is no longer the title background');
-for (const id of ['macek', 'micco', 'eriksen', 'mullet', 'wingenbach', 'mcmichael']) assert.match(landing, new RegExp(`staff-lineup/${id}\\.png`), id + ' stands on the title screen');
+for (const id of ['macek', 'micco', 'eriksen', 'mullet', 'wingenbach', 'mcmichael']) {
+  assert.match(landing, new RegExp(`class="fig[^"]*" src="game/assets/staff-lineup/${id}\\.png"`), id + ' stands in the school scene on wide screens');
+  assert.match(landing, new RegExp(`crew-row[\\s\\S]*staff-lineup/${id}\\.png`), id + ' is in the row on phones');
+}
+assert.match(landing, /class="fig fig-wave" src="game\/assets\/staff-lineup\/macek\.png"/, 'Mr. Macek is the one waving');
 assert.match(landing, /@font-face\{font-family:Fredoka;src:url\('game\/assets\/fredoka\/Fredoka-latin\.woff2'\)/, 'the kid font is bundled locally');
 for (const file of ['../assets/fredoka/Fredoka-latin.woff2', '../assets/fredoka/OFL.txt', '../assets/ec-title-bg.jpg', ...['macek', 'micco', 'eriksen', 'mullet', 'wingenbach', 'mcmichael'].map(id => `../assets/staff-lineup/${id}.png`)]) {
   const bytes = await fs.readFile(new URL(file, import.meta.url));
-  assert(bytes.length > 0 && bytes.length < 300 * 1024, file + ' exists and stays light for phones');
+  // The full-width school picture gets more room than the small pictures, still far below the 2.5 MB original.
+  const limit = file.endsWith('ec-title-bg.jpg') ? 400 * 1024 : 300 * 1024;
+  assert(bytes.length > 0 && bytes.length < limit, file + ' exists and stays light for phones');
 }
 assert.match(await fs.readFile(new URL('../assets/fredoka/OFL.txt', import.meta.url), 'utf8'), /SIL OPEN FONT LICENSE Version 1\.1/);
 assert.doesNotMatch(landing, /percycodesios\.github\.io\/MYnecraft/, 'students are never sent to the separate primary site');
