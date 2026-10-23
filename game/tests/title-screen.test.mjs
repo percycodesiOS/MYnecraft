@@ -78,4 +78,19 @@ for (const file of ['../assets/fredoka/Fredoka-latin.woff2', '../assets/fredoka/
 }
 assert.match(await fs.readFile(new URL('../assets/fredoka/OFL.txt', import.meta.url), 'utf8'), /SIL OPEN FONT LICENSE Version 1\.1/);
 assert.doesNotMatch(landing, /percycodesios\.github\.io\/MYnecraft/, 'students are never sent to the separate primary site');
+// Teacher rooms are hidden from kids. Clicking Mr. Macek is the quiet teacher entrance:
+// a plain link with a screen-reader label, never inside a hidden region, and no password anywhere.
+assert.doesNotMatch(landing, /rooms\.html|Teacher rooms/i, 'no Teacher rooms link on the title screen');
+const teacherLinks = landing.match(/<a class="fig-link" href="game\/teacher\.html" aria-label="Teacher information"><img[^>]*staff-lineup\/macek\.png/g) || [];
+assert.equal(teacherLinks.length, 2, 'Mr. Macek opens the teacher page in the school scene and in the phone row');
+assert.doesNotMatch(landing, /<div class="(figs-layer|crew-row)" aria-hidden="true">/, 'the link is reachable by keyboard and screen readers');
+assert(landing.indexOf('class="figs-layer"') > landing.indexOf('id="play-button"'), 'the hidden link comes after PLAY when tabbing');
+const teacherPage = await fs.readFile(new URL('../teacher.html', import.meta.url), 'utf8');
+assert.match(teacherPage, /Multiplayer: coming soon…/); assert.match(teacherPage, /…before you graduate\. Probably\. 😂/);
+assert.match(teacherPage, /<a class="back" href="mynecraft\.html">▶ Back to the game<\/a>/);
+assert.match(teacherPage, /class rooms need a room server that isn’t set up yet/);
+assert.match(teacherPage, /<meta name="robots" content="noindex">/);
+assert.doesNotMatch(teacherPage, /password|<input|<form|rooms\.html|<script/i, 'just a message: no sign-in, no password, no room link');
+// First time playing? The Basics quest card starts the quest in Creative.
+assert.match(landing, /<a class="quest-link" id="quest-link" href="game\/mynecraft\.html\?mode=creative&amp;tutorial=1">[\s\S]*?<b>First time playing\?<\/b><span class="quest-sub">Click here to quiz your way through the basics\.<\/span>/);
 console.log('PASS: plain link shows the title screen once per tab, no loops, deep links unchanged, PLAY starts the world, saves untouched.');
