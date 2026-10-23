@@ -10,7 +10,7 @@ const Three=await import(new URL(threeURL,new URL('../mynecraft.html',import.met
 const script=html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace("import * as THREE from 'three';",'');
 const SAVE_KEY='mynecraft_save_v1';
 const activitiesSource=await fs.readFile(new URL('../play-activities.js',import.meta.url),'utf8');
-function boot(store,{withActivities=false}={}){
+function boot(store,{withActivities=false,session=null}={}){
   const events={};
   class Element{
     constructor(){this.style={};this.children=[];this.dataset={};this.events={};this.classList={add(){},remove(){}};this.textContent='';}
@@ -24,11 +24,11 @@ function boot(store,{withActivities=false}={}){
   const localStorage={getItem:k=>store.has(k)?store.get(k):null,setItem:(k,v)=>store.set(k,String(v)),removeItem:k=>store.delete(k)};
   const context=vm.createContext({THREE:{...Three,WebGLRenderer:Renderer,TextureLoader:class {load(){return new Three.Texture();}}},document,window:{},navigator:{maxTouchPoints:0},innerWidth:1280,innerHeight:800,devicePixelRatio:1,
     performance:{now:()=>0},setTimeout:()=>1,clearTimeout(){},setInterval(){},requestAnimationFrame(){},console,URLSearchParams,
-    addEventListener(k,f){(events[k]??=[]).push(f);},localStorage,location:{reload(){}},confirm:()=>true});
+    addEventListener(k,f){(events[k]??=[]).push(f);},localStorage,location:{reload(){}},confirm:()=>true,...(session?{sessionStorage:session}:{})});
   if(withActivities)vm.runInContext(activitiesSource,context);
   vm.runInContext(script+`\n globalThis.api={player,ellie,percy,startGame,persistSave,worldBackupText,readWorldBackup,updateCompanions,companionPair,companionAnchor,companionHome,
     setCompanionMode,hostPrompt,hostInteract,gardenPlan,GARDEN_KITS,BLOCKS,INVENTORY_ADDITIONS,DAMAGED_SAVE_KEY,elements:document,activities,groundSurface,
-    get keys(){return BLOCK_KEYS;},get companionMode(){return companionMode;},get damagedSaveKept(){return damagedSaveKept;},setBlock,getBlock,isSolid};`,context);
+    get keys(){return BLOCK_KEYS;},get started(){return started;},get companionMode(){return companionMode;},get damagedSaveKept(){return damagedSaveKept;},setBlock,getBlock,isSolid};`,context);
   return {a:context.api,elements};
 }
 
@@ -137,3 +137,14 @@ console.log('PASS: unreadable saves are kept aside for recovery instead of being
   assert(!/roof/.test(els.status.textContent),'the lawn is not a roof');
 }
 console.log('PASS: real campus car drive and roof tea.');
+// PLAY on the landing title screen starts the world straight away, exactly once.
+{
+  const marks=new Map([['mynecraft_start_now','1']]);
+  const session={getItem:k=>marks.has(k)?marks.get(k):null,setItem:(k,v)=>marks.set(k,v),removeItem:k=>marks.delete(k)};
+  const {a:fromPlay}=boot(new Map(),{session});
+  assert(fromPlay.started,'arriving from PLAY skips the second Play press');
+  assert(!marks.has('mynecraft_start_now'),'the request is used once, so a later reload shows the menu');
+  const {a:direct}=boot(new Map());
+  assert(!direct.started,'without it, the menu shows first as before');
+}
+console.log('PASS: landing PLAY goes straight into the world once.');
