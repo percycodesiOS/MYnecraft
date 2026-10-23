@@ -69,6 +69,8 @@ assert.match(landing, /\.mode-help\{[^}]*height:2\.8em;overflow:hidden/, 'the de
 assert.doesNotMatch(landing, /:hover[^{]*\{[^}]*(max-height|min-height|height|padding|margin|font-size|display)\s*:/, 'hovering never changes the size or layout of anything');
 for (const button of landing.match(/<label class="mode"[\s\S]*?<\/label>/g)) assert.doesNotMatch(button, /class="(more|again)"/, 'no expanding snippets inside the mode buttons');
 assert.doesNotMatch(landing, /animation:(nudge|wave-hello)/, 'no bouncing button or rocking teacher');
+// Phones: the block logo stays on one line and shrinks to the space beside the side margins.
+assert.match(landing, /@media \(max-width:480px\)\{\.title-body\{[^}]*padding:2px 12px 26px\}\.block-title\{flex-wrap:nowrap;font-size:min\(34px,calc\(\(100vw - 28px\) \/ 10\.8\)\)\}/);
 assert.match(landing, /class="tagline"/);
 assert.doesNotMatch(landing, /ec-world-cover\.png/, 'the dog picture is no longer the title background');
 for (const id of ['macek', 'micco', 'eriksen', 'mullet', 'wingenbach', 'mcmichael']) {
