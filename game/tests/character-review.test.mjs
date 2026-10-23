@@ -24,11 +24,11 @@ const script=html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace
 const instrumented=script+`\n globalThis.api={WORLD,instMeshes,buildMeshes,player,camera,npcs,animals,hotbar,resetBtn,modeSelect,startGame,doPlace,doBreak,castVoxel,persistSave,worldBackupText,readWorldBackup,restoreWorldBackup,tick,isSolid,isExposed,
  get time(){return dayTime;},get health(){return health;},get mode(){return gameMode;},get inventory(){return inventory;},get selected(){return selected;},
  select(i){selected=i;},pause(){started=false;},modeTo(v){modeSelect.value=v;for(const change of modeSelect.events.change)change();},get keys(){return BLOCK_KEYS;},getBlock,setBlock,campusActors,sirD,macek,kay,ellie,percy,walkingPath,campusBounds,insideBounds,updateCampus,entranceDoors,moveHorizontal,canStandAt,
- micco,campusAreas,believeBanner,floorLogo,campusDetails,cloudGroup,cloudMesh,clouds,updateClouds,spawnParticles,updateParticles,particles,shardMaterial,setMacekOutfit,patternedSleeve,updateBlockMeshes,faceSlots,faceDirections,faceVisible,travelTo,setGraphics,graphicsBtn,graphicsSelect,renderer,schoolLogo,CampusActor,createWalkingSearch,PATH_STEP_NODES,
+ micco,campusAreas,believeBanner,floorLogo,campusDetails,cloudGroup,cloudMesh,clouds,updateClouds,spawnParticles,updateParticles,particles,shardMaterial,setMacekOutfit,setPlayerCharacter,patternedSleeve,updateBlockMeshes,faceSlots,faceDirections,faceVisible,travelTo,setGraphics,graphicsBtn,graphicsSelect,renderer,schoolLogo,CampusActor,createWalkingSearch,PATH_STEP_NODES,
  shields,unicorn,unicornPatrol,shieldsSeated,SHIELDS_CYCLE,SHIELDS_SIT,updateShields,schoolInteriorBounds,schoolFootprint,skinTex,
  eddie,eddieRoost,eddiePerch,eddieFacing,updateEddie,EDDIE_ROCK,EDDIE_ROOF,EDDIE_DUSK,EDDIE_DAWN,
  buses,updateBuses,busRouteDistance,busRoutePoint,busAtKerb,busStopDistances,BUS_ARRIVE,BUS_COUNT,BUS_STAGGER,BUS_DRIVE_IN,BUS_DWELL,BUS_DRIVE_OUT,BUS_VISIT,BUS_LOOP,busRouteLength,BUS_ROUTE,
- playerAvatar,staffLook,viewArms,viewModel,macekBodies,macekClothes,identityStatus,worldClockEl,setView,updatePlayerAvatar,viewSelect,viewBtn,groundSurface,inBusYard,
+ get playerAvatar(){return playerAvatar;},staffLook,viewArms,viewModel,macekBodies,macekClothes,identityStatus,worldClockEl,setView,updatePlayerAvatar,viewSelect,viewBtn,groundSurface,inBusYard,
  bubble,showBubble,SHIELDS_LINES,heightAt,nearestWalkPoint,walkFeet,
  eiler,eilerPatrol,entranceStaffBounds,canonicalCampusName,updateCompanions,companionAnchor,companionPair,setCompanionMode,hostPrompt,hostInteract,companionHome,get companionMode(){return companionMode;},saveState,worldBounds,sleeves,sleevesBounds,sleevesPatrol,js,jsBounds,jsStops,jsRoutine,updateJs,playgroundSwings,scene,get view(){return view;},get macekOutfit(){return macekOutfit;},
  setTime(t){dayTime=t;}};`;
@@ -48,6 +48,8 @@ backup.state.campus[1].name='MaCEk';backup.state.campus[7].name='Mr Unicorn 🦄
 const restored=a.readWorldBackup(JSON.stringify(backup));
 assert.equal(restored.campus[1].name,'Mr. Macek');assert.equal(restored.campus[7].name,'Mr. B');
 assert.equal(restored.campus.length,17);assert.equal(restored.campus[9].name,'Cookie Man');assert.equal(a.getBlock(25,20,25),'snow');
+// New worlds start as the Student; these checks cover the playable Mr. Macek.
+assert.equal(a.setPlayerCharacter('macek'),true);
 // The requested striped player is independent of the retained black-SV campus character.
 assert.equal(a.playerAvatar.style,'macekStriped');
 assert.notEqual(a.macek.head.material[4].map,a.playerAvatar.head.material[4].map);

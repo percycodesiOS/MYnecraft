@@ -12,7 +12,8 @@ const classics=await Promise.all(classicNames.map(name=>fs.readFile(new URL('../
 const source=html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace("import * as THREE from 'three';",'');
 const instrumented=source+`\n globalThis.api={startGame,doBreak,doPlace,castVoxel,setBlock,getBlock,recordEdit,persistSave,worldBackupText,readWorldBackup,restoreWorldBackup,openInventory,closeInventory,refreshInventory,advanceHardcore,player,camera,craftingChoices,animalChoices,inventoryChoices,gardenChoices,fishingRodChoice,modeSelect,resetBtn,LEGACY_BLOCK_KEYS,BLOCK_KEYS,
 get mode(){return gameMode;},get inventory(){return inventory;},get hardcore(){return hardcore;},get state(){return saveState;},get envelope(){return saveEnvelope;},get activities(){return activities;},get fishUnlocked(){return fishUnlocked;},get inventoryOpen(){return inventoryOpen;},get selectedAnimal(){return chosenAnimal;},get worldIsHardcore(){return isHardcoreWorld;},
-selectBlock(key){selected=BLOCK_KEYS.indexOf(key);chosenAnimal=null;},modeTo(value){modeSelect.value=value;for(const fn of modeSelect.events.change)fn();}};`;
+selectBlock(key){selected=BLOCK_KEYS.indexOf(key);chosenAnimal=null;},modeTo(value){modeSelect.value=value;for(const fn of modeSelect.events.change)fn();},
+get playerCharacter(){return playerCharacter;},characterUnlocked};`;
 const json=value=>JSON.parse(JSON.stringify(value));
 
 function loadGame(storage,url='https://example.test/game/mynecraft.html'){
@@ -49,6 +50,8 @@ test('Hardcore actual UI, world saves, resource gates, and fish habitat integrat
   let a=game.a;
   assert.equal(a.mode,'hardcore');assert(a.worldIsHardcore);assert.equal(game.location.search,'?demo=1');assert.equal(game.location.hash,'#play');
   assert.deepEqual(json(a.hardcore.unlocks.characters),['macek']);assert.equal(a.getBlock(0,3,0),'grass','the resource world replaces campus terrain');
+  assert.equal(a.playerCharacter,'student','Hardcore starts as the neutral Student');
+  assert(a.characterUnlocked('student')&&a.characterUnlocked('macek')&&!a.characterUnlocked('micco'),'the Student is always available; teachers still unlock through goals');
   a.envelope.edits['25,20,25']='snow'; // Simulate an existing independent campus build.
   a.startGame();
   aim(a,60.5,40.5,60.5);a.setBlock(60,40,57,'stone');a.doBreak();
