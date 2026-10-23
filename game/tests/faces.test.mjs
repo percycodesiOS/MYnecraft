@@ -59,14 +59,41 @@ for (const id of ['macek', 'eriksen', 'mullet', 'wingenbach', 'mcmichael']) asse
 // 16-pixel faces: Ms. Micco, the Student and the other campus characters.
 for (const [name, person] of Object.entries({ micco: a.micco, student: a.playerAvatars.student, sirD: a.sirD, shields: a.shields, eiler: a.eiler, cookie: a.cookie, schoolOfficer: a.schoolOfficer, js: a.js, sleeves: a.sleeves, mrB: a.unicorn })) assertStraight(name, person, 16);
 
-// Ms. Eriksen: eyes no bigger than the other teachers', and a lopsided (smirking) mouth with no teeth showing.
+// Ms. Eriksen: relaxed eyes, a little less open than the other teachers', and her original smile.
 {
   const art = eyes(faceRects(a.playerAvatars.eriksen), 64), music = eyes(faceRects(a.playerAvatars.wingenbach), 64);
-  assert(art.whites[0].w * art.whites[0].h < music.whites[0].w * music.whites[0].h * .7, 'Ms. Eriksen has normal-sized eyes, not bug eyes');
-  const rects = faceRects(a.playerAvatars.eriksen), mouth = rects.filter(r => r.color === '#9c6650');
-  assert(mouth.length >= 2, 'her mouth has a lifted corner');
-  const left = Math.min(...mouth.map(r => r.y)), mid = Math.max(...mouth.map(r => r.y));
-  assert(mid - left >= 3, 'one corner lifts higher than the rest: a smirk');
-  assert(!rects.some(r => r.color === '#fff4dd' && r.y > 40), 'a closed smirk, no big toothy grin');
+  assert(art.whites[0].w * art.whites[0].h < music.whites[0].w * music.whites[0].h * .5, 'Ms. Eriksen has normal-sized eyes, not bug eyes');
+  assert(art.whites[0].h <= 4, 'her eyes are a little less wide open');
+  const mouth = list => list.filter(r => r.color === '#9c6650' || (r.color === '#fff4dd' && r.y > 40)).map(r => [r.color, r.x, r.y, r.w, r.h].join());
+  assert.deepEqual(mouth(faceRects(a.playerAvatars.eriksen)), mouth(faceRects(a.playerAvatars.mullet)), 'her mouth is back to the original smile');
 }
-console.log('PASS: every teacher and campus face looks straight ahead with mirrored eyes; Ms. Eriksen has normal eyes and her smirk.');
+// Kenny: the men's hair must end in one clean, straight line. No hair block beside the
+// face may hang lower than the front edge (the back of the head is allowed to go lower).
+{
+  const pieces = (person, color) => {
+    const out = [];
+    person.group.traverse(m => {
+      if (!m.isMesh || !m.geometry?.parameters || m.material?.color?.getHex?.() !== color) return;
+      let y = m.position.y, z = m.position.z;
+      for (let p = m.parent; p && p !== person.group; p = p.parent) { y += p.position.y; z += p.position.z; }
+      const { width, height, depth } = m.geometry.parameters;
+      out.push({ bottom: y - height / 2, front: z + depth / 2, z, width });
+    });
+    return out;
+  };
+  for (const [name, person, color] of [['campus Mr. Macek', a.macek, 0xa7804e], ['playable Mr. Macek', a.playerAvatars.macek, a.playerAvatars.macek.group.getObjectByName('straight hairline').material.color.getHex()],
+    ['Mr. Mullet', a.playerAvatars.mullet, a.playerAvatars.mullet.group.getObjectByName('straight hairline').material.color.getHex()], ['Mr. Wingenbach', a.playerAvatars.wingenbach, 0x3e3129], ['the Student', a.playerAvatars.student, 0x6b4a2f]]) {
+    // Front edge: the wide pieces across the forehead. Sides: the narrow strips beside the face.
+    const hair = pieces(person, color), front = hair.filter(p => p.front > .2 && p.width >= .3), sides = hair.filter(p => p.z > -.2 && p.width < .15);
+    assert(front.length && sides.length, name + ': hair pieces found');
+    const edge = Math.min(...front.map(p => p.bottom)), lowest = Math.min(...sides.map(p => p.bottom));
+    assert(lowest >= edge - .006, `${name}: side hair stops level with the front hairline (${lowest.toFixed(3)} vs ${edge.toFixed(3)})`);
+  }
+  assert(!a.playerAvatars.student.group.getObjectByName('side fringe') && !a.js.group.getObjectByName('side fringe'), 'no slanted or stepped fringe pieces');
+  // Painted faces: no side strip of hair below the top band.
+  const sideStrips = (rects, size) => rects.filter(r => (r.x === 0 || r.x + r.w === size) && r.w <= size / 8 && r.y > 0 && r.y < size * .45 && !/^#(fff|eab887|e5b993|edc3a2|d9a27d|eec6a2|cb9876)/i.test(r.color));
+  for (const [name, person, size] of [['campus Mr. Macek', a.macek, 64], ['playable Mr. Macek', a.playerAvatars.macek, 64], ['Mr. Mullet', a.playerAvatars.mullet, 64], ['Mr. Wingenbach', a.playerAvatars.wingenbach, 64],
+    ['the Student', a.playerAvatars.student, 16], ['js', a.js, 16], ['Sleeves', a.sleeves, 16], ['Officer Shields', a.shields, 16], ['Cookie', a.cookie, 16]])
+    assert.deepEqual(sideStrips(faceRects(person), size), [], name + ': the painted hairline is one straight band');
+}
+console.log('PASS: every face looks straight ahead with mirrored eyes, the men have one straight hairline, and Ms. Eriksen has relaxed eyes and her original smile.');

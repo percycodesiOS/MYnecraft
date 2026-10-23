@@ -146,7 +146,8 @@ for(const state of [withSleeves.state,legacySleeves.state]){
 // animated seat. Transitions stay continuous, and old saves gain him only once.
 assert.equal(a.js.name,'js');assert.equal(a.campusActors[12],a.js);
 assert(a.js.group.scale.x>a.kay.group.scale.x&&a.js.group.scale.x<1);
-for(const name of ['light brown blond hair','side fringe','tied sweatshirt','orange lime shoe'])assert(a.js.group.getObjectByName(name),name);
+// October 23: his fringe is now one straight line (Kenny asked for clean, straight hairlines).
+for(const name of ['light brown blond hair','straight fringe','tied sweatshirt','orange lime shoe'])assert(a.js.group.getObjectByName(name),name);
 const visitedSwings=new Set(),phases=new Set(),lastJs=a.js.group.position.clone();
 const hip=new Three.Vector3(),seat=new Three.Vector3(),grip=new Three.Vector3();
 let walked=0,swingRange=0,swingSave;
