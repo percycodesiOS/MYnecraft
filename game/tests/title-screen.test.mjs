@@ -61,7 +61,14 @@ assert.match(landing, /class="block-title" aria-label="MYnecraft"/);
 // Kenny's October 23 requests: a big How to play button, mode snippets, a readable
 // tagline plate, and the Specials teachers instead of the dogs on the title screen.
 assert.match(landing, /id="howto-button"/);
-assert.equal((landing.match(/<span class="more">/g) || []).length, 3, 'each mode has its short snippet');
+assert.equal((landing.match(/<label class="mode" data-more="[^"]{20,80}">/g) || []).length, 3, 'each mode has its short description');
+// Kenny's bug: pointing at a mode made the whole page bounce. The description now shows in
+// one reserved line of fixed height, and no hover rule changes any size.
+assert.match(landing, /<p class="mode-help" id="mode-help" aria-live="polite">/);
+assert.match(landing, /\.mode-help\{[^}]*height:2\.8em;overflow:hidden/, 'the description line keeps a fixed height');
+assert.doesNotMatch(landing, /:hover[^{]*\{[^}]*(max-height|min-height|height|padding|margin|font-size|display)\s*:/, 'hovering never changes the size or layout of anything');
+for (const button of landing.match(/<label class="mode"[\s\S]*?<\/label>/g)) assert.doesNotMatch(button, /class="(more|again)"/, 'no expanding snippets inside the mode buttons');
+assert.doesNotMatch(landing, /animation:(nudge|wave-hello)/, 'no bouncing button or rocking teacher');
 assert.match(landing, /class="tagline"/);
 assert.doesNotMatch(landing, /ec-world-cover\.png/, 'the dog picture is no longer the title background');
 for (const id of ['macek', 'micco', 'eriksen', 'mullet', 'wingenbach', 'mcmichael']) {
