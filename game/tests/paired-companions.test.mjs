@@ -30,7 +30,7 @@ const instrumented=script+`\n globalThis.api={WORLD,instMeshes,buildMeshes,playe
  buses,updateBuses,busRouteDistance,busRoutePoint,busAtKerb,busStopDistances,BUS_ARRIVE,BUS_COUNT,BUS_STAGGER,BUS_DRIVE_IN,BUS_DWELL,BUS_DRIVE_OUT,BUS_VISIT,BUS_LOOP,busRouteLength,BUS_ROUTE,
  playerAvatar,staffLook,viewArms,viewModel,macekBodies,macekClothes,identityStatus,worldClockEl,setView,updatePlayerAvatar,viewSelect,viewBtn,groundSurface,inBusYard,
  bubble,showBubble,SHIELDS_LINES,heightAt,nearestWalkPoint,walkFeet,
- eiler,eilerPatrol,entranceStaffBounds,canonicalCampusName,updateCompanions,companionAnchor,companionPair,ellieGoal,percyGoal,saveState,worldBounds,sleeves,sleevesBounds,sleevesPatrol,js,jsBounds,jsStops,jsRoutine,updateJs,playgroundSwings,scene,get view(){return view;},get macekOutfit(){return macekOutfit;},
+ eiler,eilerPatrol,entranceStaffBounds,canonicalCampusName,updateCompanions,companionAnchor,companionPair,setCompanionMode,hostPrompt,hostInteract,companionHome,get companionMode(){return companionMode;},ellieGoal,percyGoal,saveState,worldBounds,sleeves,sleevesBounds,sleevesPatrol,js,jsBounds,jsStops,jsRoutine,updateJs,playgroundSwings,scene,get view(){return view;},get macekOutfit(){return macekOutfit;},
  setTime(t){dayTime=t;}};`;
 vm.runInContext(instrumented,context);
 const a=context.api;
@@ -43,6 +43,8 @@ a.player.pos.set(25.5,6.7,60.5);a.player.flying=false;a.player.yaw=0;
 a.ellie.pos.set(26.5,5,58.5);a.percy.pos.set(24.5,5,58.5);
 a.macek.pos.set(60.5,5,-10.5);
 a.startGame();
+// The following regression covers the Follow me choice; companion-modes covers the rest.
+a.setCompanionMode('follow');
 let roamed=false,returned=false,sawRun=false,maxGap=0,maxStep=0,sideFrames=0,movingFrames=0;
 let previous=[a.ellie.pos.clone(),a.percy.pos.clone()];
 for(let n=0;n<3600;n++){

@@ -30,7 +30,7 @@ const instrumented=script+`\n globalThis.api={WORLD,instMeshes,buildMeshes,playe
  buses,updateBuses,busRouteDistance,busRoutePoint,busAtKerb,busStopDistances,BUS_ARRIVE,BUS_COUNT,BUS_STAGGER,BUS_DRIVE_IN,BUS_DWELL,BUS_DRIVE_OUT,BUS_VISIT,BUS_LOOP,busRouteLength,BUS_ROUTE,
  playerAvatar,staffLook,viewArms,viewModel,macekBodies,macekClothes,identityStatus,worldClockEl,setView,updatePlayerAvatar,viewSelect,viewBtn,groundSurface,inBusYard,
  bubble,showBubble,SHIELDS_LINES,heightAt,nearestWalkPoint,walkFeet,
- eiler,eilerPatrol,entranceStaffBounds,canonicalCampusName,updateCompanions,companionAnchor,companionPair,saveState,worldBounds,sleeves,sleevesBounds,sleevesPatrol,js,jsBounds,jsStops,jsRoutine,updateJs,playgroundSwings,scene,get view(){return view;},get macekOutfit(){return macekOutfit;},
+ eiler,eilerPatrol,entranceStaffBounds,canonicalCampusName,updateCompanions,companionAnchor,companionPair,setCompanionMode,hostPrompt,hostInteract,companionHome,get companionMode(){return companionMode;},saveState,worldBounds,sleeves,sleevesBounds,sleevesPatrol,js,jsBounds,jsStops,jsRoutine,updateJs,playgroundSwings,scene,get view(){return view;},get macekOutfit(){return macekOutfit;},
  setTime(t){dayTime=t;}};`;
 vm.runInContext(instrumented,context);
 const a=context.api;
@@ -87,6 +87,8 @@ assert(maxShieldsDistance<6,'patrol stays near the front desk');assert(sawSeated
 // The protected dogs now return to the player's last grounded position.
 // Full pair formation, obstacle, stairs and pause regression is exercised in
 // paired-companions.test.mjs against the same real game source.
+// New worlds default to "play near home"; this checks the Follow me choice.
+assert.equal(a.companionMode,'play');a.setCompanionMode('follow');
 a.player.pos.set(25.5,6.7,-20.5);a.player.yaw=0;a.player.flying=false;
 const before=a.ellie.pos.clone();a.updateCompanions(.05);
 assert(a.ellie.pos.distanceTo(before)<.4,'a return begins by walking, never teleporting');

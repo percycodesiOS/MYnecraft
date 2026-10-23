@@ -177,7 +177,7 @@ a.buildMeshes();assert.deepEqual([...a.faceSlots].map(([id,v])=>id+':'+v.bucketK
 const originalIterator=a.WORLD[Symbol.iterator];a.WORLD[Symbol.iterator]=()=>{throw new Error('Block edit attempted whole-world scan');};
 const editTimes=[];for(let i=0;i<100;i++){const start=performance.now();a.setBlock(-24,29,-20,i%2?'snow':null);a.updateBlockMeshes(-24,29,-20);editTimes.push(performance.now()-start);}
 a.WORLD[Symbol.iterator]=originalIterator;editTimes.sort((a,b)=>a-b);console.log('Incremental edit CPU median/p95 ms:',editTimes[50].toFixed(3),editTimes[95].toFixed(3));
-assert.equal(a.hotbar.children.length,36);
+assert.equal(a.hotbar.children.length,37);
 const event={preventDefault(){}};
 a.startGame();
 const beforeTravel=a.player.pos.clone();
@@ -271,7 +271,9 @@ assert(a.kay.pos.distanceTo(a.sirD.pos)<4,'KaY still follows Sir D');
 {
  // Existing saved dog positions remain valid. New companion behavior is a
  // paired outing that returns to the player, not the independent Mr. Macek NPC.
- const dogSave={edits:{'25,20,25':'snow'},mode:'creative',dayTime:.3,health:20,
+ // Older saves without companionMode open with the dogs playing near home; this
+ // one chose Follow me, so it still exercises the return-to-player route.
+ const dogSave={edits:{'25,20,25':'snow'},mode:'creative',dayTime:.3,health:20,companionMode:'follow',
   player:{x:46.5,y:6.7,z:29.5,yaw:0,pitch:0,sel:0,flying:false},
   campus:[{name:'Mr. Macek',x:54.5,y:5,z:-10.5,patrolIndex:0},{name:'Ellie',x:15.5,y:5,z:12.5,patrolIndex:0},{name:'Percy',x:18.5,y:5,z:12.5,patrolIndex:0}]};
  const dogContext=vm.createContext({...context,api:undefined,localStorage:{getItem:()=>JSON.stringify(dogSave),setItem(){},removeItem(){}}});
