@@ -69,8 +69,20 @@ assert.match(landing, /\.mode-help\{[^}]*height:2\.8em;overflow:hidden/, 'the de
 assert.doesNotMatch(landing, /:hover[^{]*\{[^}]*(max-height|min-height|height|padding|margin|font-size|display)\s*:/, 'hovering never changes the size or layout of anything');
 for (const button of landing.match(/<label class="mode"[\s\S]*?<\/label>/g)) assert.doesNotMatch(button, /class="(more|again)"/, 'no expanding snippets inside the mode buttons');
 assert.doesNotMatch(landing, /animation:(nudge|wave-hello)/, 'no bouncing button or rocking teacher');
-// Phones: the block logo stays on one line and shrinks to the space beside the side margins.
-assert.match(landing, /@media \(max-width:480px\)\{\.title-body\{[^}]*padding:2px 12px 26px\}\.block-title\{flex-wrap:nowrap;font-size:min\(34px,calc\(\(100vw - 28px\) \/ 10\.8\)\)\}/);
+// Kenny's title redo: one stone-block logo word (not multicolor tiles), EC EDITION under it,
+// a yellow tilted splash that pulses (and stays still for reduced motion), and the logo
+// sized to fit beside the side margins on phones.
+assert.match(landing, /<h1 class="block-title" aria-label="MYnecraft"><span class="logo" data-text="MYNECRAFT" aria-hidden="true"><span class="face">MYNECRAFT<\/span><\/span><\/h1>/);
+assert.doesNotMatch(landing, /block-letter/, 'no multicolor tile letters');
+assert.match(landing, /\.tagline\{[^}]*color:#ffff4f[^}]*animation:splash/, 'the tagline is a yellow splash');
+assert.match(landing, /@media \(prefers-reduced-motion:reduce\)\{html\{scroll-behavior:auto\}\.scene,\.tagline,\.quest-link\{animation:none\}/, 'no pulsing for reduced motion');
+assert.match(landing, /@media \(max-width:480px\)\{[^}]*\}\.block-title\{font-size:min\(44px,calc\(\(100vw - 34px\) \/ 8\.1\)\)\}/);
+// First time playing? is its own bright button bar under the menu, not tucked beside it.
+assert(landing.indexOf('id="quest-link"') > landing.indexOf('<p class="save">'), 'the quest bar comes after the menu panel');
+assert.doesNotMatch(landing, /\.quest-link\{position:absolute/);
+// The teachers are the heroes: two groups of three sized from the screen.
+assert.match(landing, /\.figs-layer\{[^}]*--p:min\(50vh,27vw\)/);
+assert.equal((landing.match(/<div class="cast cast-(left|right)">/g) || []).length, 4, 'two groups on wide screens and the same two on phones');
 assert.match(landing, /class="tagline"/);
 assert.doesNotMatch(landing, /ec-world-cover\.png/, 'the dog picture is no longer the title background');
 for (const id of ['macek', 'micco', 'eriksen', 'mullet', 'wingenbach', 'mcmichael']) {

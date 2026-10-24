@@ -53,11 +53,22 @@ function assertStraight(name, person, size) {
   assert.equal(whites[0].x + whites[0].w + whites[1].x, size, `${name}: the eyes mirror each other across the face`);
   assert.equal(pupils[0].x + pupils[0].w + pupils[1].x, size, `${name}: the pupils mirror each other, so neither eye looks inward`);
 }
-// 64-pixel faces: the campus Mr. Macek and every playable teacher.
+// 64-pixel teacher faces: the campus Mr. Macek, Ms. Micco and every playable teacher.
 assertStraight('campus Mr. Macek', a.macek, 64);
-for (const id of ['macek', 'eriksen', 'mullet', 'wingenbach', 'mcmichael']) assertStraight('playable ' + id, a.playerAvatars[id], 64);
-// 16-pixel faces: Ms. Micco, the Student and the other campus characters.
-for (const [name, person] of Object.entries({ micco: a.micco, student: a.playerAvatars.student, sirD: a.sirD, shields: a.shields, eiler: a.eiler, cookie: a.cookie, schoolOfficer: a.schoolOfficer, js: a.js, sleeves: a.sleeves, mrB: a.unicorn })) assertStraight(name, person, 16);
+assertStraight('Ms. Micco', a.micco, 64);
+for (const id of ['macek', 'eriksen', 'mullet', 'wingenbach', 'mcmichael', 'micco']) assertStraight('playable ' + id, a.playerAvatars[id], 64);
+// 16-pixel faces: the Student and the other campus characters.
+for (const [name, person] of Object.entries({ student: a.playerAvatars.student, sirD: a.sirD, shields: a.shields, eiler: a.eiler, cookie: a.cookie, schoolOfficer: a.schoolOfficer, js: a.js, sleeves: a.sleeves, mrB: a.unicorn })) assertStraight(name, person, 16);
+// Kenny: every teacher's face is built the same way. Eyes, nose and mouth sit in the same
+// places on Mr. Macek, Ms. Micco and the staff looks, and no nose block sticks out of a face.
+{
+  const shape = person => faceRects(person).filter(r => ['#fff5e8', '#292d30', '#cb9876', '#9c6650', '#fff4dd'].includes(r.color)).map(r => [r.color, r.x, r.y, r.w, r.h].join()).sort();
+  const reference = shape(a.playerAvatars.mullet);
+  for (const [name, person] of [['campus Mr. Macek', a.macek], ['playable Mr. Macek', a.playerAvatars.macek], ['Ms. Micco', a.micco], ['Mr. Wingenbach', a.playerAvatars.wingenbach], ['Ms. McMichael', a.playerAvatars.mcmichael]])
+    assert.deepEqual(shape(person), reference, name + ' has the same face construction as the other teachers');
+  const sticksOut = person => { let found = false; person.group.traverse(m => { if (m.isMesh && m.geometry?.parameters && m.position.z > .25 && Math.abs(m.position.y - person.head.position.y) < .12 && Math.abs(m.position.x) < .1 && m.geometry.parameters.width < .2) found = true; }); return found; };
+  assert(!sticksOut(a.macek), 'no protruding nose block on the campus Mr. Macek');
+}
 
 // Ms. Eriksen: relaxed eyes, a little less open than the other teachers', and her original smile.
 {
