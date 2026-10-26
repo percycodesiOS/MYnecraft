@@ -80,6 +80,8 @@ assert.match(landing, /@media \(max-width:480px\)\{[^}]*\}\.block-title\{font-si
 // First time playing? is its own bright button bar under the menu, not tucked beside it.
 assert(landing.indexOf('id="quest-link"') > landing.indexOf('<p class="save">'), 'the quest bar comes after the menu panel');
 assert.doesNotMatch(landing, /\.quest-link\{position:absolute/);
+assert.match(landing, /@keyframes quest-glow\{[\s\S]*?transform:scale\(1\.035\)/,'First time playing has a visible gentle pulse');
+assert.match(landing, /\.quest-link:hover,\.quest-link:focus-visible\{animation:none/,'the invitation holds still for mouse and keyboard interaction');
 // The teachers are the heroes: two groups of three sized from the screen.
 assert.match(landing, /\.figs-layer\{[^}]*--p:min\(50vh,27vw\)/);
 assert.equal((landing.match(/<div class="cast cast-(left|right)">/g) || []).length, 4, 'two groups on wide screens and the same two on phones');

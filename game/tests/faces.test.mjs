@@ -21,7 +21,7 @@ class Element {
 }
 class Renderer { constructor() { this.domElement = new Element('canvas'); this.shadowMap = {}; } setPixelRatio() {} setSize() {} render() {} }
 const source = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace("import * as THREE from 'three';", '') +
-  '\nglobalThis.api={playerAvatars,macek,micco,sirD,shields,eiler,cookie,schoolOfficer,js,sleeves,unicorn,eriksen,mullet,wingenbach,mcmichael};';
+  '\nglobalThis.api={playerAvatars,legacyStudent:buildPlayerAvatar(\'student\'),macek,micco,sirD,shields,eiler,cookie,schoolOfficer,js,sleeves,unicorn,eriksen,mullet,wingenbach,mcmichael};';
 const elements = {}, document = { body: new Element(), createElement: t => new Element(t), getElementById: id => elements[id] ??= new Element(), addEventListener() {}, exitPointerLock() {} };
 const context = vm.createContext({ THREE: { ...Three, WebGLRenderer: Renderer, TextureLoader: class { load() { return new Three.Texture(); } } }, document, window: {}, navigator: { maxTouchPoints: 0 }, innerWidth: 1280, innerHeight: 800, devicePixelRatio: 1,
   performance: { now: () => 0 }, setTimeout: () => 1, clearTimeout() {}, setInterval() {}, requestAnimationFrame() {}, console, URLSearchParams, addEventListener() {},
@@ -57,8 +57,8 @@ function assertStraight(name, person, size) {
 assertStraight('campus Mr. Macek', a.macek, 64);
 assertStraight('Ms. Micco', a.micco, 64);
 for (const id of ['macek', 'eriksen', 'mullet', 'wingenbach', 'mcmichael', 'micco']) assertStraight('playable ' + id, a.playerAvatars[id], 64);
-// 16-pixel faces: the Student and the other campus characters.
-for (const [name, person] of Object.entries({ student: a.playerAvatars.student, sirD: a.sirD, shields: a.shields, eiler: a.eiler, cookie: a.cookie, schoolOfficer: a.schoolOfficer, js: a.js, sleeves: a.sleeves, mrB: a.unicorn })) assertStraight(name, person, 16);
+// 16-pixel faces: the retired Student look (still rendered for old saves) and the other campus characters.
+for (const [name, person] of Object.entries({ student: a.legacyStudent, sirD: a.sirD, shields: a.shields, eiler: a.eiler, cookie: a.cookie, schoolOfficer: a.schoolOfficer, js: a.js, sleeves: a.sleeves, mrB: a.unicorn })) assertStraight(name, person, 16);
 // Kenny: every teacher's face is built the same way. Eyes, nose and mouth sit in the same
 // places on Mr. Macek, Ms. Micco and the staff looks, and no nose block sticks out of a face.
 {
@@ -93,18 +93,25 @@ for (const [name, person] of Object.entries({ student: a.playerAvatars.student, 
     return out;
   };
   for (const [name, person, color] of [['campus Mr. Macek', a.macek, 0xa7804e], ['playable Mr. Macek', a.playerAvatars.macek, a.playerAvatars.macek.group.getObjectByName('straight hairline').material.color.getHex()],
-    ['Mr. Mullet', a.playerAvatars.mullet, a.playerAvatars.mullet.group.getObjectByName('straight hairline').material.color.getHex()], ['Mr. Wingenbach', a.playerAvatars.wingenbach, 0x3e3129], ['the Student', a.playerAvatars.student, 0x6b4a2f]]) {
+    ['Mr. Mullet', a.playerAvatars.mullet, a.playerAvatars.mullet.group.getObjectByName('straight hairline').material.color.getHex()], ['Mr. Wingenbach', a.playerAvatars.wingenbach, 0x3e3129], ['the Student', a.legacyStudent, 0x6b4a2f]]) {
     // Front edge: the wide pieces across the forehead. Sides: the narrow strips beside the face.
     const hair = pieces(person, color), front = hair.filter(p => p.front > .2 && p.width >= .3), sides = hair.filter(p => p.z > -.2 && p.width < .15);
     assert(front.length && sides.length, name + ': hair pieces found');
     const edge = Math.min(...front.map(p => p.bottom)), lowest = Math.min(...sides.map(p => p.bottom));
     assert(lowest >= edge - .006, `${name}: side hair stops level with the front hairline (${lowest.toFixed(3)} vs ${edge.toFixed(3)})`);
   }
-  assert(!a.playerAvatars.student.group.getObjectByName('side fringe') && !a.js.group.getObjectByName('side fringe'), 'no slanted or stepped fringe pieces');
+  assert(!a.legacyStudent.group.getObjectByName('side fringe') && !a.js.group.getObjectByName('side fringe'), 'no slanted or stepped fringe pieces');
   // Painted faces: no side strip of hair below the top band.
   const sideStrips = (rects, size) => rects.filter(r => (r.x === 0 || r.x + r.w === size) && r.w <= size / 8 && r.y > 0 && r.y < size * .45 && !/^#(fff|eab887|e5b993|edc3a2|d9a27d|eec6a2|cb9876)/i.test(r.color));
   for (const [name, person, size] of [['campus Mr. Macek', a.macek, 64], ['playable Mr. Macek', a.playerAvatars.macek, 64], ['Mr. Mullet', a.playerAvatars.mullet, 64], ['Mr. Wingenbach', a.playerAvatars.wingenbach, 64],
-    ['the Student', a.playerAvatars.student, 16], ['js', a.js, 16], ['Sleeves', a.sleeves, 16], ['Officer Shields', a.shields, 16], ['Cookie', a.cookie, 16]])
+    ['the Student', a.legacyStudent, 16], ['js', a.js, 16], ['Sleeves', a.sleeves, 16], ['Officer Shields', a.shields, 16], ['Cookie', a.cookie, 16]])
     assert.deepEqual(sideStrips(faceRects(person), size), [], name + ': the painted hairline is one straight band');
 }
-console.log('PASS: every face looks straight ahead with mirrored eyes, the men have one straight hairline, and Ms. Eriksen has relaxed eyes and her original smile.');
+// Hair hugs the head. Curly and long hair can frame a face without a wide halo;
+// the three short cuts stay close to the head width and below a tenth-block crown.
+for(const id of ['macek','eriksen','mullet','wingenbach','mcmichael']){
+  const person=a.playerAvatars[id],box=new Three.Box3().setFromObject(person.hair),size=box.getSize(new Three.Vector3());
+  assert(size.x/person.head.geometry.parameters.width<=1.25,id+': hair is proportionate to the head');
+  for(const part of person.hair.children.filter(p=>p.name.includes('crown')))assert(part.geometry.parameters.height<=.10,id+': crown stays close to the head');
+}
+console.log('PASS: mirrored eyes, straight hairlines, proportional teacher hair silhouettes, and Ms. Eriksen has relaxed eyes and her original smile.');

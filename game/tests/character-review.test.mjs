@@ -48,7 +48,7 @@ backup.state.campus[1].name='MaCEk';backup.state.campus[7].name='Mr Unicorn 🦄
 const restored=a.readWorldBackup(JSON.stringify(backup));
 assert.equal(restored.campus[1].name,'Mr. Macek');assert.equal(restored.campus[7].name,'Mr. B');
 assert.equal(restored.campus.length,17);assert.equal(restored.campus[9].name,'Cookie Man');assert.equal(a.getBlock(25,20,25),'snow');
-// New worlds start as the Student; these checks cover the playable Mr. Macek.
+// New worlds start as Mr. Macek until a teacher is picked; these checks cover him picked.
 assert.equal(a.setPlayerCharacter('macek'),true);
 // The requested striped player is independent of the retained black-SV campus character.
 assert.equal(a.playerAvatar.style,'macekStriped');

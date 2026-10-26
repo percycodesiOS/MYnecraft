@@ -10,6 +10,7 @@ assert.match(html,/Press Esc to release the mouse/);
 assert.match(html,/body\.touch-device #mouseHint \{ display: none/);
 assert.doesNotMatch(css,/bottom:\s*max\(300px/);
 assert.match(css,/#challengeProgress[\s\S]*top:\s*148px/);
+assert.match(css,/html body #controls button \{\s*pointer-events:auto;/,'HUD buttons remain clickable above the pointer-transparent control container');
 
 const threeURL=JSON.parse(html.match(/<script type="importmap">\s*([\s\S]*?)<\/script>/)[1]).imports.three;
 const Three=await import(new URL(threeURL,new URL('../mynecraft.html',import.meta.url)));
@@ -120,19 +121,19 @@ for(const mode of ['creative','survival']){
  assert.equal(locksAfter(()=>elements.enter.events.click[0](mouse())),1,`${mode} touch laptop Play can capture the mouse`);
 }
 
-// The actual menu and toolbar choices change the layout and survive saving.
+// The single Settings choice changes the layout and survives saving. The HUD
+// exposes only the four primary actions, not a second settings dropdown.
 apply(laptop);
 const menu=document.getElementById('controlsLayout');
-const toolbar=document.getElementById('controlsToggle');
-// The stub does not index dynamically appended IDs; retrieve via the body.
 const panel=document.body.children.find(el=>el.id==='controls');
-const liveToolbar=panel.children.find(el=>el.id==='controlsToggle');
+assert.deepEqual(panel.children.slice(0,4).map(el=>el.id),['menuToggle','inventoryToggle','saveGame','helpToggle']);
+assert(!panel.children.some(el=>el.id==='controlsToggle'),'settings no longer crowd the game toolbar');
 menu.value='touch';menu.events.change[0]();
-assert.equal(a.controls,'touch');assert.equal(liveToolbar.value,'touch');
+assert.equal(a.controls,'touch');assert.equal(menu.value,'touch');
 assert.equal(document.getElementById('touchUI').style.display,'block');
 assert.equal(JSON.parse(saved).controls,'touch');
-assert.equal(menu.disabled,false);assert.equal(liveToolbar.disabled,false);
-liveToolbar.value='desktop';liveToolbar.events.change[0]();
+assert.equal(menu.disabled,false);
+menu.value='desktop';menu.events.change[0]();
 assert.equal(menu.value,'desktop');assert.equal(document.getElementById('touchUI').style.display,'none');
 assert.equal(JSON.parse(saved).controls,'desktop');
 apply(phone);a.setControlsLayout('desktop');
@@ -411,5 +412,27 @@ a.inventoryBack.events.click[0]();assert.equal(a.started,true,'Back to game resu
 a.inventoryBtn.events.click[0]();for(const fn of events.blur)fn();
 assert.equal(a.inventoryOpen,false);assert.equal(a.started,false,'losing focus closes the picker into the pause menu');
 assert.equal(a.renderer.domElement.inert,false);
+
+// Resume remains keyboard reachable when the pause menu focuses its button.
+assert.equal(a.started,false);
+press('Escape',{tagName:'BUTTON'});assert.equal(a.started,true,'Escape resumes from the focused Resume button');
+for(const fn of events.keydown)fn({code:'Escape',repeat:true,target:{tagName:'BUTTON'},preventDefault(){}});
+assert.equal(a.started,true,'held Escape cannot repeatedly toggle the menu');
+press('Escape');assert.equal(a.started,false);
+press('Escape',{tagName:'SELECT'});assert.equal(a.started,false,'Escape in a Settings select does not resume the world');
+
+// A local-storage failure is visible in the paused menu as well as the HUD.
+const normalWrite=context.localStorage.setItem;
+context.localStorage.setItem=()=>{throw new Error('quota');};
+assert.equal(a.persistSave(),false);assert.equal(elements.saveWarning.hidden,false);
+assert.match(elements.saveWarning.textContent,/Download Save/);
+context.localStorage.setItem=normalWrite;
+assert.equal(a.persistSave(),true);assert.equal(elements.saveWarning.hidden,true);
+
+a.startGame();a.player.flying=false;a.player.pos.set(90.5,20+a.player.height,80.5);
+a.setBlock(90,19,80,'glow');a.setBlock(90,20,80,'water');
+down.events.pointerdown[0]({pointerType:'mouse',preventDefault(){}});
+assert.equal(a.movement.KeyV,true,'mouse DOWN descends inside a water elevator even without flight');
+down.events.pointerup[0]({pointerType:'mouse'});assert.equal(a.movement.KeyV,false);
 
 console.log('PASS: input regression (desktop, phone, iPad, touch laptop, saved controls, both modes, WASD/arrows, independent sprint/flight/descent, inventory open/close/focus/select/place/save).');

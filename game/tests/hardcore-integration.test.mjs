@@ -50,8 +50,8 @@ test('Hardcore actual UI, world saves, resource gates, and fish habitat integrat
   let a=game.a;
   assert.equal(a.mode,'hardcore');assert(a.worldIsHardcore);assert.equal(game.location.search,'?demo=1');assert.equal(game.location.hash,'#play');
   assert.deepEqual(json(a.hardcore.unlocks.characters),['macek']);assert.equal(a.getBlock(0,3,0),'grass','the resource world replaces campus terrain');
-  assert.equal(a.playerCharacter,'student','Hardcore starts as the neutral Student');
-  assert(a.characterUnlocked('student')&&a.characterUnlocked('macek')&&!a.characterUnlocked('micco'),'the Student is always available; teachers still unlock through goals');
+  assert.equal(a.playerCharacter,'macek','a new Hardcore world starts as Mr. Macek, the teacher Hardcore unlocks first');
+  assert(a.characterUnlocked('macek')&&!a.characterUnlocked('micco')&&!a.characterUnlocked('student'),'Mr. Macek is always playable; other teachers still unlock through goals; the Student is gone');
   a.envelope.edits['25,20,25']='snow'; // Simulate an existing independent campus build.
   a.startGame();
   aim(a,60.5,40.5,60.5);a.setBlock(60,40,57,'stone');a.doBreak();
