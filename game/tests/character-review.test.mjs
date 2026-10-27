@@ -64,7 +64,8 @@ for(const look of ['polo','black']){
  assert(a.macek.poloCollars.every(c=>!c.visible));
  assert(a.macek.shoulderCaps.every(c=>c.material[4].map===a.macekClothes.black));
  assert.equal(a.playerAvatar.body.material[4].map,a.staffLook('macekStriped').shirt);
- assert(a.playerAvatar.poloCollars.every(c=>c.visible));
+ assert.equal(a.playerAvatar.armR.children[0].material[4].map,a.patternedSleeve);
+ assert(a.playerAvatar.poloCollars.every(c=>!c.visible));
 }
 assert.equal(a.unicorn.laptop.rotation.y,Math.PI,'laptop screen is turned back toward wearer');
 assert.equal(a.unicorn.laptop.userData.carryArm,'armL');

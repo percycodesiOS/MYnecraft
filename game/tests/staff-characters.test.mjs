@@ -164,8 +164,12 @@ for(const wasChosen of [true,false,undefined]){
 
 // Clothing checks inspect the textures actually applied to meshes, not only card labels.
 const hasColor=(texture,color)=>texture.image.getContext('2d').colors.has(color);
-assert(hasColor(a.playerAvatars.macek.body.material[0].map,'#b84348'),'Macek polo includes red stripes');
-assert(hasColor(a.playerAvatars.macek.body.material[0].map,'#e9e8e0'),'Macek polo includes light stripes');
+assert(hasColor(a.playerAvatars.macek.body.material[0].map,'#171b22'),'Macek wears his black SV shirt');
+assert(hasColor(a.playerAvatars.macek.body.material[0].map,'#1d2027'),'Macek shirt has dark weave');
+assert.equal(a.playerAvatars.macek.armL.children[0].material[0].map,a.patternedSleeve,'playable Macek has left patterned sleeve');
+assert.equal(a.playerAvatars.macek.armR.children[0].material[0].map,a.patternedSleeve,'playable Macek has right patterned sleeve');
+assert(a.playerAvatars.macek.group.getObjectByName('watch face'),'playable Macek has watch on left wrist');
+assert(a.playerAvatars.macek.group.getObjectByName('bracelet leather')&&a.playerAvatars.macek.group.getObjectByName('bracelet copper'),'playable Macek has bracelet stack on right wrist');
 assert(hasColor(a.playerAvatars.eriksen.body.material[4].map,'#a54cb0'),'Eriksen wears purple');
 assert(hasColor(a.playerAvatars.eriksen.body.material[4].map,'#16191e'),'Eriksen keeps black outer clothing');
 assert(hasColor(a.playerAvatars.mullet.body.material[4].map,'#202e49'),'Mullet wears navy');

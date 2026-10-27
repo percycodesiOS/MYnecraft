@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -8,7 +8,7 @@
 // Title screen first, like a real game: the plain school link (no ?query or
 // #hash) opens the landing page once per browser tab. The landing marks the tab
 // in sessionStorage, so this can never loop, and any explicit deep link
-// (?mode=hardcore, ?room=1, #â€¦) opens the game exactly as before. Same site only.
+// (?mode=hardcore, ?room=1, #…) opens the game exactly as before. Same site only.
 (function(){
   try{
     if(location.search||location.hash)return;
@@ -231,14 +231,14 @@
 <div id="hud"><div id="crosshair"></div></div>
 <div id="touchUI">
   <div id="touchLook"></div>
-  <button class="touchBtn" id="btnHideControls" type="button" aria-pressed="false">ðŸ™ˆ Hide buttons</button>
+  <button class="touchBtn" id="btnHideControls" type="button" aria-pressed="false">🙈 Hide buttons</button>
   <div id="touchStick"><div id="touchStickNub"></div></div>
   <div id="touchActions">
     <div class="row"><button class="touchBtn" id="btnInteract" type="button" hidden>INTERACT</button></div>
     <div class="row">
-      <button class="touchBtn" id="btnFly" type="button">FLY</button>
-      <button class="touchBtn" id="btnDown" type="button">DOWN</button>
-      <button class="touchBtn" id="btnJump" type="button">JUMP</button>
+      <button class="touchBtn" id="btnFly" type="button">🚀 FLY</button>
+      <button class="touchBtn" id="btnDown" type="button">⬇️ DOWN</button>
+      <button class="touchBtn" id="btnJump" type="button">⬆️ JUMP</button>
     </div>
     <div class="row">
       <button class="touchBtn" id="btnBreak" type="button">&#9935; BREAK</button>
@@ -247,9 +247,9 @@
   </div>
 </div>
 <button id="activityInteract" type="button" aria-keyshortcuts="E" hidden>Interact</button>
-<div id="info">WASD move Â· Drag to look Â· Space jump Â· Esc menu Â· Help for all controls</div>
+<div id="info">🕹️ WASD/Arrows move · 👀 Mouse look · ⬆️ Space jump · 🚀 Fly: F or 2×Space (Space ⬆️ / V ⬇️) · 🧱 Left break / Right place · Esc menu</div>
 <div id="mouseHint">Press Esc to release the mouse. Drag to look if the cursor stays free.</div>
-<div id="sleepTransition" role="status" aria-live="polite" hidden><span class="sleep-moon" aria-hidden="true">â˜¾</span><strong>You are now asleep</strong><p>Sunrise is one second away. A new day is coming!</p></div>
+<div id="sleepTransition" role="status" aria-live="polite" hidden><span class="sleep-moon" aria-hidden="true">☾</span><strong>You are now asleep</strong><p>Sunrise is one second away. A new day is coming!</p></div>
 <div id="start">
   <div class="start-shell">
     <header class="start-header start-hero">
@@ -262,12 +262,12 @@
         <div class="hero-play">
           <p class="hero-step" id="modeTitle">How do you want to play?</p>
           <div class="mode-cards" role="radiogroup" aria-labelledby="modeTitle">
-            <button type="button" class="mode-card" data-mode="creative" role="radio" aria-checked="true"><span aria-hidden="true">ðŸŽ¨</span><strong>Creative</strong><small>Build anything</small></button>
-            <button type="button" class="mode-card" data-mode="survival" role="radio" aria-checked="false"><span aria-hidden="true">ðŸŒ³</span><strong>Challenge</strong><small>Collect &amp; build</small></button>
-            <button type="button" class="mode-card" data-mode="hardcore" role="radio" aria-checked="false"><span aria-hidden="true">â›ï¸</span><strong>Hardcore</strong><small>Craft &amp; unlock</small></button>
+            <button type="button" class="mode-card" data-mode="creative" role="radio" aria-checked="true"><span aria-hidden="true">🎨</span><strong>Creative</strong><small>Build anything</small></button>
+            <button type="button" class="mode-card" data-mode="survival" role="radio" aria-checked="false"><span aria-hidden="true">🌳</span><strong>Challenge</strong><small>Collect &amp; build</small></button>
+            <button type="button" class="mode-card" data-mode="hardcore" role="radio" aria-checked="false"><span aria-hidden="true">⛏️</span><strong>Hardcore</strong><small>Craft &amp; unlock</small></button>
           </div>
-          <label class="hero-mode">Game mode <select id="mode"><option value="creative">Creative Â· build anything</option><option value="survival">Embrace the Challenge</option><option value="hardcore">Embrace the Challenge: Hardcore</option></select></label>
-          <button class="btn" id="enter" type="button">â–¶ PLAY</button>
+          <label class="hero-mode">Game mode <select id="mode"><option value="creative">Creative · build anything</option><option value="survival">Embrace the Challenge</option><option value="hardcore">Embrace the Challenge: Hardcore</option></select></label>
+          <button class="btn" id="enter" type="button">▶ PLAY</button>
           <button type="button" id="howToPlayOpen" class="howto-open"><span class="q" aria-hidden="true">?</span>How to play</button>
           <p class="playing-as"><span id="playingAs">Playing as: Mr. Macek</span> <button type="button" id="changeCharacter" class="link-button">Choose your teacher</button></p>
           <p class="start-tip" id="startTip">Your world saves by itself.</p>
@@ -276,24 +276,25 @@
         </div>
       </div>
     </header>
-    <!-- Four picture steps: all a first-time player needs. The rest is under How to play. -->
+    <!-- Five picture steps: all a first-time player needs, including how to fly. -->
     <section class="quick-steps" aria-label="Quick start">
-      <div class="quick-step"><span class="quick-icon" aria-hidden="true">ðŸ•¹ï¸</span><strong>Move</strong><span class="desktop-help"><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></span><span class="touch-help">Use the round stick</span></div>
-      <div class="quick-step"><span class="quick-icon" aria-hidden="true">ðŸ‘€</span><strong>Look</strong><span class="desktop-help">Move the mouse</span><span class="touch-help">Drag the screen</span></div>
-      <div class="quick-step"><span class="quick-icon" aria-hidden="true">ðŸ§±</span><strong>Build</strong><span class="desktop-help">Right click adds Â· left click removes</span><span class="touch-help">Tap PLACE Â· tap BREAK</span></div>
-      <div class="quick-step"><span class="quick-icon" aria-hidden="true">ðŸ’¾</span><strong>Save</strong><span>It saves by itself</span></div>
+      <div class="quick-step"><span class="quick-icon" aria-hidden="true">🕹️</span><strong>Move</strong><span class="desktop-help"><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></span><span class="touch-help">Use the round stick</span></div>
+      <div class="quick-step"><span class="quick-icon" aria-hidden="true">👀</span><strong>Look</strong><span class="desktop-help">Move the mouse</span><span class="touch-help">Drag the screen</span></div>
+      <div class="quick-step"><span class="quick-icon" aria-hidden="true">🚀</span><strong>Fly</strong><span class="desktop-help"><kbd>F</kbd> or <kbd>2× Space</kbd> · <kbd>Space</kbd> ⬆️ <kbd>V</kbd> ⬇️</span><span class="touch-help">Tap <strong>🚀 FLY</strong> · <strong>⬆️ JUMP</strong> / <strong>⬇️ DOWN</strong></span></div>
+      <div class="quick-step"><span class="quick-icon" aria-hidden="true">🧱</span><strong>Build</strong><span class="desktop-help">Right click adds · left click removes</span><span class="touch-help">Tap PLACE · tap BREAK</span></div>
+      <div class="quick-step"><span class="quick-icon" aria-hidden="true">💾</span><strong>Save</strong><span>It saves by itself</span></div>
     </section>
     <!-- One tap takes a student straight to each thing the class asked for. -->
     <details class="try-panel menu-fold" id="tryPanel" aria-labelledby="tryTitle">
       <summary id="tryTitle">Activities <span>Explore, build and play</span></summary>
       <div class="try-grid">
-        <button type="button" class="try-choice" data-try="quest"><span aria-hidden="true">ðŸŽ“</span><strong>Basics quest</strong><small>Learn by doing, step by step</small></button>
-        <button type="button" class="try-choice" data-try="car"><span aria-hidden="true">ðŸš—</span><strong>Drive the car</strong><small>Start right beside it</small></button>
-        <button type="button" class="try-choice" data-try="hoops"><span aria-hidden="true">ðŸ€</span><strong>Shoot hoops</strong><small>Start on the court</small></button>
-        <button type="button" class="try-choice" data-try="tea"><span aria-hidden="true">â˜•</span><strong>Tea on the roof</strong><small>A cozy cup with a view</small></button>
-        <button type="button" class="try-choice" data-try="story"><span aria-hidden="true">ðŸ“–</span><strong>Story time</strong><small>Hear a book read aloud</small></button>
-        <button type="button" class="try-choice" data-try="library"><span aria-hidden="true">ðŸ“š</span><strong>Build a library</strong><small>Place one with a tap</small></button>
-        <button type="button" class="try-choice" data-try="dogs"><span aria-hidden="true">ðŸ•</span><strong>Walk with the dogs</strong><small>Percy and Ellie follow you</small></button>
+        <button type="button" class="try-choice" data-try="quest"><span aria-hidden="true">🎓</span><strong>Basics quest</strong><small>Learn by doing, step by step</small></button>
+        <button type="button" class="try-choice" data-try="car"><span aria-hidden="true">🚗</span><strong>Drive the car</strong><small>Start right beside it</small></button>
+        <button type="button" class="try-choice" data-try="hoops"><span aria-hidden="true">🏀</span><strong>Shoot hoops</strong><small>Start on the court</small></button>
+        <button type="button" class="try-choice" data-try="tea"><span aria-hidden="true">☕</span><strong>Tea on the roof</strong><small>A cozy cup with a view</small></button>
+        <button type="button" class="try-choice" data-try="story"><span aria-hidden="true">📖</span><strong>Story time</strong><small>Hear a book read aloud</small></button>
+        <button type="button" class="try-choice" data-try="library"><span aria-hidden="true">📚</span><strong>Build a library</strong><small>Place one with a tap</small></button>
+        <button type="button" class="try-choice" data-try="dogs"><span aria-hidden="true">🐕</span><strong>Walk with the dogs</strong><small>Percy and Ellie follow you</small></button>
       </div>
       <p id="tryStatus" role="status"></p>
     </details>
@@ -306,51 +307,51 @@
     </details>
     <!-- Everything below is folded away behind one friendly button each. -->
     <div class="start-more" aria-label="More options">
-    <details class="start-advanced how-to-play" id="howToPlay"><summary>â“ How to play</summary>
+    <details class="start-advanced how-to-play" id="howToPlay"><summary>❓ How to play</summary>
     <section class="first-minute" aria-labelledby="firstMinuteTitle">
       <div class="first-minute-heading"><div><span class="guide-eyebrow">START HERE</span><h2 id="firstMinuteTitle">Your first minute in MYnecraft</h2></div><span class="guide-mode">For class: choose Creative</span></div>
       <ol class="play-steps">
         <li><span class="step-number">1</span><div><h3>Press Play</h3><p>Keep <strong>Creative</strong> and press <strong>PLAY</strong> at the top. Want a different character? Pick a teacher below first.</p></div></li>
-        <li><span class="step-number">2</span><div><h3>Move and look</h3><p class="desktop-help"><kbd>W</kbd> forward Â· <kbd>S</kbd> back<br><kbd>A</kbd> left Â· <kbd>D</kbd> right. Arrow keys work too. Move your mouse to look; click and drag if it stays free. <kbd>Space</kbd> jumps.</p><p class="touch-help">Use the round stick to move. Drag the screen to look. Tap <strong>JUMP</strong> to jump.</p></div></li>
+        <li><span class="step-number">2</span><div><h3>Move and look</h3><p class="desktop-help"><kbd>W</kbd> forward · <kbd>S</kbd> back<br><kbd>A</kbd> left · <kbd>D</kbd> right. Arrow keys work too. Move your mouse to look; click and drag if it stays free. <kbd>Space</kbd> jumps.</p><p class="touch-help">Use the round stick to move. Drag the screen to look. Tap <strong>JUMP</strong> to jump.</p></div></li>
         <li><span class="step-number">3</span><div><h3>Place your first block</h3><p>Open <strong>Blocks / Inventory</strong> and choose a material. <span class="desktop-help">The <kbd>I</kbd> key opens it too.</span> Aim the + at a nearby block.</p><p class="desktop-help"><strong>Right click</strong> to add a block. <strong>Left click</strong> to remove one.</p><p class="touch-help">Tap <strong>PLACE</strong> to add a block. Tap <strong>BREAK</strong> to remove one.</p></div></li>
-        <li><span class="step-number">4</span><div><h3>Keep your work</h3><p id="keepWorkGuide">Click <strong>Save</strong>. Before leaving: <strong>Menu â†’ Save, download or load a world â†’ Download Save</strong>. Check Downloads for your <strong>.json</strong> file.</p></div></li>
+        <li><span class="step-number">4</span><div><h3>Keep your work</h3><p id="keepWorkGuide">Click <strong>Save</strong>. Before leaving: <strong>Menu → Save, download or load a world → Download Save</strong>. Check Downloads for your <strong>.json</strong> file.</p></div></li>
       </ol>
-      <div class="flight-guide"><strong>Want to fly?</strong><p class="desktop-help"><kbd>F</kbd> flight on/off <span>Â·</span> <kbd>Space</kbd> up <span>Â·</span> <kbd>V</kbd> down <span>Â·</span> hold <kbd>Shift</kbd> to move faster. Let go of up/down to hover.</p><p class="touch-help">Tap <strong>FLY</strong> on/off. Hold <strong>JUMP</strong> to go up or <strong>DOWN</strong> to go down. Let go to hover.</p><small>Creative mode only. <span class="desktop-help">Press <kbd>Esc</kbd> or </span>open <strong>Menu</strong> to pause and see these steps again.</small></div>
-      <p class="class-reminder" id="classReminder">Building for class? Follow your teacherâ€™s directions for what to make and where. Each browser has its own world; there is no automatic device sync.</p>
+      <div class="flight-guide"><strong>Want to fly?</strong><p class="desktop-help"><kbd>F</kbd> or double-tap <kbd>Space</kbd> flight on/off <span>·</span> <kbd>Space</kbd> up <span>·</span> <kbd>V</kbd> down <span>·</span> hold <kbd>Shift</kbd> to move faster. Let go of up/down to hover.</p><p class="touch-help">Tap <strong>FLY</strong> on/off. Hold <strong>JUMP</strong> to go up or <strong>DOWN</strong> to go down. Let go to hover.</p><small>Creative mode only. <span class="desktop-help">Press <kbd>Esc</kbd> or </span>open <strong>Menu</strong> to pause and see these steps again.</small></div>
+      <p class="class-reminder" id="classReminder">Building for class? Follow your teacher’s directions for what to make and where. Each browser has its own world; there is no automatic device sync.</p>
     </section>
     </details>
-    <details class="start-advanced start-settings" id="settingsPanel" aria-labelledby="settingsTitle"><summary id="settingsTitle">âš™ï¸ Settings</summary>
+    <details class="start-advanced start-settings" id="settingsPanel" aria-labelledby="settingsTitle"><summary id="settingsTitle">⚙️ Settings</summary>
       <section class="settings-body">
         <p><strong>Hardcore unlocks more:</strong> Gather, craft tools, build a house, and earn materials, animals and teacher characters. It is peaceful: no enemies or permanent loss of your world.</p>
         <div class="play-options">
-        <label>Day and night <select id="dayNightMode"><option value="auto-sleep">Auto sleep Â· skip night</option><option value="always-day">Always day Â· keep the clock running</option><option value="full-cycle">Full day/night Â· 20-minute days</option></select></label>
+        <label>Day and night <select id="dayNightMode"><option value="auto-sleep">Auto sleep · skip night</option><option value="always-day">Always day · keep the clock running</option><option value="full-cycle">Full day/night · 20-minute days</option></select></label>
         <p id="dayNightHelp">At 6:00 PM, sleep for one second, then wake at 6:00 AM. Opening the menu pauses sleep too.</p>
-        <label>Percy and Ellie <select id="companionMode"><option value="play">Play on their own Â· they stay near home</option><option value="follow">Follow me everywhere</option><option value="stay">Stay where they are</option></select></label>
-        <label><input id="movementHelp" type="checkbox" checked> Show movement help Â· H hides or shows it</label>
-        <label>Camera <select id="playerView"><option value="first">First person Â· see your sleeves</option><option value="third">Third person Â· see your character</option></select></label>
-        <label>Graphics <select id="graphics"><option value="smooth">Smooth Â· recommended</option><option value="detailed">Detailed Â· adds shadows</option></select></label>
-        <label>Controls <select id="controlsLayout" aria-label="Controls layout"><option value="auto">Auto Â· match this device</option><option value="touch">Touch Â· show screen buttons</option><option value="desktop">Keyboard and mouse</option></select></label>
+        <label>Percy and Ellie <select id="companionMode"><option value="play">Play on their own · they stay near home</option><option value="follow">Follow me everywhere</option><option value="stay">Stay where they are</option></select></label>
+        <label><input id="movementHelp" type="checkbox" checked> Show movement help · H hides or shows it</label>
+        <label>Camera <select id="playerView"><option value="first">First person · see your sleeves</option><option value="third">Third person · see your character</option></select></label>
+        <label>Graphics <select id="graphics"><option value="smooth">Smooth · recommended</option><option value="detailed">Detailed · adds shadows</option></select></label>
+        <label>Controls <select id="controlsLayout" aria-label="Controls layout"><option value="auto">Auto · match this device</option><option value="touch">Touch · show screen buttons</option><option value="desktop">Keyboard and mouse</option></select></label>
         <p><strong>Creative:</strong> unlimited blocks, flight, and coordinate travel. <strong>Embrace the Challenge:</strong> collect 10 wood blocks, place 12 blocks, and find CIRC on foot. It is a peaceful world; falls and deep water can hurt.</p>
         <p>Use <strong>Smooth</strong> for lighter graphics. <strong>Detailed</strong> adds shadows. Switch camera views here or press C while playing.</p>
         </div>
       </section>
     </details>
-    <details class="start-advanced" id="schoolExplore"><summary>ðŸ« Explore the school</summary><section class="start-actions" aria-label="Explore the school">
+    <details class="start-advanced" id="schoolExplore"><summary>🏫 Explore the school</summary><section class="start-actions" aria-label="Explore the school">
       <button id="visitSchool" type="button">Visit the ECMS entrance</button>
-      <button id="overview" type="button">Fly above ECMS Â· Creative</button>
+      <button id="overview" type="button">Fly above ECMS · Creative</button>
       <p class="start-wide"><strong>Choose a starting point:</strong> Visit the ECMS entrance moves you to the front approach in either mode. Fly above ECMS starts a flying view in Creative. Neither shortcut changes the world clock or clears your build.</p>
       <p class="start-wide"><strong>Front lawn and entrance:</strong> Find Sleeves in his number 28 jersey, larger than KaY and smaller than the adults. Officer Shields stays by his front desk, and Mr. Eiler walks the entrance area. Eddie perches on the lawn rock during the day.</p>
       <p class="start-wide"><strong>Playground:</strong> Look for js in a red tee and lime shorts. He walks around the playground and takes turns on the two swings.</p>
-      <p class="start-wide"><strong>Find your learning community:</strong> Pass through both glass doorways. The main cafeteria and its high ECTV screen are straight ahead; the elementary cafeteria is to your left. Grade 5 is in the right wing with Grade 6 upstairs. Grades 3â€“4 are in the left wing with Grades 1â€“2 upstairs. Kindergarten is at the upper landing of the broad curved walkway. Outside, the flag is in the center of the entrance circle and the parking rows are to the left of the approach.</p>
+      <p class="start-wide"><strong>Find your learning community:</strong> Pass through both glass doorways. The main cafeteria and its high ECTV screen are straight ahead; the elementary cafeteria is to your left. Grade 5 is in the right wing with Grade 6 upstairs. Grades 3–4 are in the left wing with Grades 1–2 upstairs. Kindergarten is at the upper landing of the broad curved walkway. Outside, the flag is in the center of the entrance circle and the parking rows are to the left of the approach.</p>
       <p class="start-wide"><strong>Around campus:</strong> Mr. B carries his laptop through the halls. Ms. Micco patrols the campus. KaY follows Sir D. Ellie and Percy play side by side near home. Walk up to them and use Interact to ask them to follow you, or choose Follow me in the menu; they wait on your last walkable floor when you fly. Sir D and Mr. Macek meet near the entrance around sunset.</p>
       <p class="start-wide"><strong>Meet the staff:</strong> Ms. Eriksen paints upstairs in the left wing. Mr. Wingenbach plays a keyboard upstairs above CIRC. Ms. McMichael greets you in Spanish in the upstairs right wing. Mr. Mullet walks around the outdoor court. The campus Mr. Macek wears his black SV shirt in CIRC.</p>
       <p class="start-wide"><strong>Morning and afternoon:</strong> The separate School Officer parks beyond the far curb near the circle exit at 8:30 AM, walks inside to patrol the cafeteria, and starts walking back to his car at 3:00 PM. Three school buses begin their trip to the rear loop at 3:00 PM, arriving one after another before leaving again.</p>
       <p class="start-wide"><strong>Cafeteria cleanup:</strong> From 2:00 PM to 3:00 PM each game day, the cafeteria custodian rides a gray floor scrubber around the main cafeteria. Keep the aisles clear so he can clean.</p>
       <p class="start-wide"><strong>Evening:</strong> Cookie Man sweeps the halls from 4:00 PM to 10:00 PM. Eddie starts flying to the roof at 6:00 PM and returns to the lawn by 6:00 AM.</p>
       <p class="start-wide"><strong>These are game-clock routines.</strong> The clock's full cycle takes 20 minutes of active play. Auto sleep skips from 6:00 PM to 6:00 AM after one second. Choose Full day/night to see evening routines, or Always day to keep daylight while the clock runs. Opening this menu pauses the world, including sleep, the clock, characters, and buses. Your real school day does not set their schedule.</p>
-      <p id="worldClock" class="start-wide" role="status">World clock loadingâ€¦</p>
+      <p id="worldClock" class="start-wide" role="status">World clock loading…</p>
     </section></details>
-    <details class="start-advanced" id="savePanel"><summary>ðŸ’¾ Save or load a world</summary><section class="start-save" aria-labelledby="saveTitle">
+    <details class="start-advanced" id="savePanel"><summary>💾 Save or load a world</summary><section class="start-save" aria-labelledby="saveTitle">
       <h2 id="saveTitle" class="start-wide">Keep your world</h2>
       <p class="start-wide"><strong>Save</strong> keeps your progress in this browser on this device. The game also saves as you play. <strong>Download Save</strong> puts a copy of your world in a file you can keep. It does not remove or change your world. Check your Downloads folder for the file ending in .json.</p>
       <p class="start-wide"><strong>Load World</strong> opens a MYnecraft save file you choose. It asks before replacing the world saved in this browser. The two worlds do not join together. <strong>Keep both?</strong> Use Download Save first and check that your current world's file downloaded. Then choose Load World. Press Cancel at the warning to keep playing your current world.</p>
@@ -362,8 +363,8 @@
       <div id="worldManagement" class="world-management start-wide"></div>
     </section></details>
     <details class="start-advanced" id="moreTools"><summary>More tools &amp; building guides</summary><div class="menu-extra-content">
-    <details class="travel start-advanced"><summary>ðŸ§­ Travel to coordinates</summary><p>Creative only. X and Z move across the map; Y is eye height. Go starts flight at those coordinates if the spot is clear. If it is inside a block, try a higher Y. The crosshair aims at blocks. Settings shows your current position.</p><form id="travelForm"><label>X <input id="travelX" type="number" step="any" min="-95" max="127" value="46.5" required></label><label>Y <input id="travelY" type="number" step="any" min="-6" max="60" value="7" required></label><label>Z <input id="travelZ" type="number" step="any" min="-95" max="95" value="31.5" required></label><button type="submit">Go</button></form><p id="travelStatus" role="status">Your world has edges: X âˆ’95 to 127, Z âˆ’95 to 95.</p></details>
-    <details class="start-advanced" id="areaLabelsPanel"><summary>ðŸª§ Name your spaces</summary>
+    <details class="travel start-advanced"><summary>🧭 Travel to coordinates</summary><p>Creative only. X and Z move across the map; Y is eye height. Go starts flight at those coordinates if the spot is clear. If it is inside a block, try a higher Y. The crosshair aims at blocks. Settings shows your current position.</p><form id="travelForm"><label>X <input id="travelX" type="number" step="any" min="-95" max="127" value="46.5" required></label><label>Y <input id="travelY" type="number" step="any" min="-6" max="60" value="7" required></label><label>Z <input id="travelZ" type="number" step="any" min="-95" max="95" value="31.5" required></label><button type="submit">Go</button></form><p id="travelStatus" role="status">Your world has edges: X −95 to 127, Z −95 to 95.</p></details>
+    <details class="start-advanced" id="areaLabelsPanel"><summary>🪧 Name your spaces</summary>
       <p>Walk to a space, open Menu, then add a short area name. Small signs stay at that spot and show only when you are nearby. Name the space, such as Music Studio or Quiet Corner.</p>
       <form id="areaLabelForm" class="area-label-form">
         <label>Choose a sign <select id="areaLabelChoice"><option value="new">New sign at this spot</option></select></label>
@@ -371,14 +372,14 @@
         <button type="submit">Save sign</button><button type="button" id="removeAreaLabel">Remove selected sign</button>
       </form><p id="areaLabelStatus" role="status">Up to 40 signs. They save with your world and downloaded backup.</p>
     </details>
-    <details class="start-advanced"><summary>ðŸ’§ Build a water elevator</summary>
+    <details class="start-advanced"><summary>💧 Build a water elevator</summary>
       <ol><li>Place one Glowstone block on the ground.</li><li>Build a shaft with Glass around it. Leave a doorway at the bottom and an exit at the top.</li><li>Place Water in every space directly above the Glowstone. A gap stops the lift.</li><li>Turn flight off and walk into the water. It lifts you! Walk out at the top. Hold V or DOWN to ride down.</li></ol>
       <p>This MYnecraft recipe uses Glowstone. Ordinary water still works for swimming. The lift works in both game modes; in Embrace the Challenge, collect the blocks first.</p>
     </details>
-    <details class="start-advanced"><summary>âŒ¨ï¸ All the controls</summary>
+    <details class="start-advanced"><summary>⌨️ All the controls</summary>
       <p><strong>Choose your blocks:</strong> Open Blocks / Inventory or press I while playing. Choose a pictured material to keep building. Creative has unlimited blocks; Embrace the Challenge shows what you have collected. Back to game, I, or Esc closes the picker. The block bar still works too.</p>
-      <p><strong>Keyboard and mouse:</strong> W Forward Â· S Back Â· A Left Â· D Right. The arrow keys also move: â†‘ Forward Â· â†“ Back Â· â† Left Â· â†’ Right. Move your mouse to look, or click and drag if it stays free. Space jumps or swims up; Shift sprints on foot. Left click breaks a block, and right click places the selected block. Use 1â€“9, [ and ], the scroll wheel, or the block bar to change materials.</p>
-      <p><strong>Creative flight and camera:</strong> Press F once to turn flight on or off. While flying, Space goes up and V goes down; let go to hover. Hold Shift to move faster on foot or in flight without changing height. C switches between first and third person; Menu â†’ Settings has the same choice.</p>
+      <p><strong>Keyboard and mouse:</strong> W Forward · S Back · A Left · D Right. The arrow keys also move: ↑ Forward · ↓ Back · ← Left · → Right. Move your mouse to look, or click and drag if it stays free. Space jumps or swims up; Shift sprints on foot. Left click breaks a block, and right click places the selected block. Use 1–9, [ and ], the scroll wheel, or the block bar to change materials.</p>
+      <p><strong>Creative flight and camera:</strong> Press F once to turn flight on or off. While flying, Space goes up and V goes down; let go to hover. Hold Shift to move faster on foot or in flight without changing height. C switches between first and third person; Menu → Settings has the same choice.</p>
       <p><strong>Phone or tablet:</strong> Choose Touch to show the screen buttons, or Auto to follow your device. Move with the stick and drag the screen to look. Tap the block bar, BREAK, or PLACE. Hold JUMP to swim or fly upward. In Creative, FLY toggles flight. DOWN descends while flying or in a water elevator. Phones and tablets never capture a mouse.</p>
       <p><strong>Pause and keep playing:</strong> Esc releases the mouse and opens this menu. The Menu button also pauses. Use Play to continue, Save to keep local progress now, and Download Save for a copy you can keep or move.</p>
     </details>
@@ -387,7 +388,7 @@
   </div>
 </div>
 
-<div id="status" role="status" aria-live="polite">Loading your worldâ€¦</div>
+<div id="status" role="status" aria-live="polite">Loading your world…</div>
 <div id="challengeProgress" aria-label="Challenge progress" hidden></div>
 
 <script type="importmap">
@@ -949,8 +950,8 @@ for(const [x,z]of elementaryCafeteriaTables){
 // Gray circulation strips, wood floors and generous learning communities on
 // both levels. Floor identities follow the directions given while entering.
 const learningCommunities=[
-  {name:'Grades 3â€“4',x:28,z:-23,y:5,side:'left'},
-  {name:'Grades 1â€“2',x:28,z:-23,y:11,side:'left'},
+  {name:'Grades 3–4',x:28,z:-23,y:5,side:'left'},
+  {name:'Grades 1–2',x:28,z:-23,y:11,side:'left'},
   {name:'Grade 5',x:55,z:-23,y:5,side:'right'},
   {name:'Grade 6',x:55,z:-23,y:11,side:'right'}
 ];
@@ -1145,8 +1146,8 @@ let macekOutfit = saveState.macekOutfit === 'black' ? 'black' : 'polo';
 // Kenny, October 24: players always play as one of the six Specials teachers. Mr. Macek
 // comes first and is the fallback, because Hardcore unlocks him from the start.
 const STAFF_CHARACTERS=Object.freeze([
-  {id:'macek',name:'Mr. Macek',role:'CIRC',style:'macekStriped',detail:'Striped polo and Gators lanyard'},
-  {id:'micco',name:'Ms. Micco',role:'CIRC',style:'micco',detail:'The familiar campus character'},
+  {id:'macek',name:'Mr. Macek',role:'CIRC',style:'macekStriped',detail:'Black SV shirt, arm sleeves and Gators lanyard'},
+  {id:'micco',name:'Ms. Micco',role:'CIRC',style:'micco',detail:'Glasses, cardigan and lanyard'},
   {id:'eriksen',name:'Ms. Eriksen',role:'Art',style:'eriksen',detail:'Curly hair and a purple top'},
   {id:'mullet',name:'Mr. Mullet',role:'PE',style:'mullet',detail:'Navy hoodie and khaki shorts'},
   {id:'wingenbach',name:'Mr. Wingenbach',role:'Music',style:'wingenbach',detail:'Black quarter-zip and gray pants'},
@@ -1241,7 +1242,7 @@ function environmentWantsTouch(){
   return isIPad();
 }
 function touchLayoutOn(){return controlsLayout==='touch'||(controlsLayout==='auto'&&environmentWantsTouch());}
-function controlsLabel(){return environmentWantsTouch()?'Auto Â· Touch controls':'Auto Â· Keyboard and mouse';}
+function controlsLabel(){return environmentWantsTouch()?'Auto · Touch controls':'Auto · Keyboard and mouse';}
 function paintControlsChoice(){
   for(const el of [document.getElementById('controlsLayout'),controlsSelect]){
     if(!el)continue;
@@ -1284,10 +1285,10 @@ function refreshChallenge(){
   document.getElementById('btnDown').style.display='none';
   if(gameMode==='hardcore'){
     const next=globalThis.MYNE_HARDCORE.status(hardcore).next;
-    el.textContent=next?`HARDCORE Â· ${next.title}: ${next.instruction} (${next.progress}/${next.goal})`:'HARDCORE Â· All goals complete! Keep creating.';return;
+    el.textContent=next?`HARDCORE · ${next.title}: ${next.instruction} (${next.progress}/${next.goal})`:'HARDCORE · All goals complete! Keep creating.';return;
   }
   const finished=challenge.wood===10&&challenge.placed===12&&challenge.circ;
-  const label=finished?'Challenge complete! Keep building.':`CHALLENGE Â· Wood ${challenge.wood}/10 Â· Place ${challenge.placed}/12 Â· CIRC ${challenge.circ?'âœ“':'find it'}`;
+  const label=finished?'Challenge complete! Keep building.':`CHALLENGE · Wood ${challenge.wood}/10 · Place ${challenge.placed}/12 · CIRC ${challenge.circ?'✓':'find it'}`;
   if(label!==challengeLabel){el.textContent=label;challengeLabel=label;}
 }
 function updateChallenge(){
@@ -1371,7 +1372,7 @@ function worldBackupText(){
   return JSON.stringify({format:'mynecraft-world',version:1,state:saveEnvelope});
 }
 function canonicalCampusName(name){
-  return name==='MaCEk'||name==='Macek'||name==='Mr. Masek'?'Mr. Macek':name==='Mr Unicorn ðŸ¦„'||name==='Mr. Unicorn'?'Mr. B':name==='Cookie Monster'?'Cookie Man':name;
+  return name==='MaCEk'||name==='Macek'||name==='Mr. Masek'?'Mr. Macek':name==='Mr Unicorn 🦄'||name==='Mr. Unicorn'?'Mr. B':name==='Cookie Monster'?'Cookie Man':name;
 }
 function readWorldBackup(text,depth=0){
   if(depth>1)throw new Error('This backup has invalid nested worlds. Your world was kept.');
@@ -1621,7 +1622,7 @@ class NPC {
       if (inPlay(nx,nz) && !inLake(nx,nz) && Math.abs(gNxt - gNow) <= 1) {
         this.pos.x = nx; this.pos.z = nz; this.pos.y = gNxt;
       } else {
-        // hit edge â€” turn
+        // hit edge — turn
         this.pickNewHeading();
       }
       this.walkPhase += dt * 6;
@@ -1658,7 +1659,7 @@ class NPC {
   }
 }
 NPC.LINES_CLOSE = [
-  "Hi there!", "Nice day for digging.", "Watch out for creepâ€” uh, never mind.",
+  "Hi there!", "Nice day for digging.", "Watch out for creep— uh, never mind.",
   "Got any sand?", "I built that tree, you know."
 ];
 NPC.LINES_FAR = [
@@ -1714,7 +1715,7 @@ spawnNPC('Alex',  -12, 5);
 
 const schoolWayfinding=[];
 for(const [text,x,y,z,width] of [
-  ['ECES Â· Grades 1â€“4',25,12,37.1,7],['ECMS Â· Grades 5â€“6',57,12,37.1,7]
+  ['ECES · Grades 1–4',25,12,37.1,7],['ECMS · Grades 5–6',57,12,37.1,7]
 ]){
   const label=new THREE.Sprite(new THREE.SpriteMaterial({map:makeNameTag(text),depthTest:true}));
   label.name=text;label.scale.set(width,1,1);label.position.set(x,y,z);scene.add(label);schoolWayfinding.push(label);
@@ -2312,6 +2313,19 @@ function teacherFeatures(ctx,{brow,iris}){
   ctx.fillStyle='#cb9876';ctx.fillRect(28,37,8,7);
   ctx.fillStyle='#9c6650';ctx.fillRect(20,49,25,6);ctx.fillStyle='#fff4dd';ctx.fillRect(21,49,23,3);
 }
+// Cache both outfits once; switching clothes does not allocate textures per frame.
+function outfitTexture(draw){const c=document.createElement('canvas');c.width=c.height=64;draw(c.getContext('2d'));const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;return t;}
+const macekClothes=Object.fromEntries(['polo','black'].map(style=>[style,outfitTexture(ctx=>{
+  ctx.fillStyle=style==='polo'?'#1685d1':'#171b22';ctx.fillRect(0,0,64,64);
+  for(let y=0;y<64;y+=8)for(let x=0;x<64;x+=8){ctx.fillStyle=style==='polo'?((x+y)%24?'#1688d5':'#127bc6'):((x+y)%24?'#1d2027':'#24272e');ctx.fillRect(x,y,8,8);}
+  if(style==='black'){ctx.fillStyle='#70b6df';ctx.font='bold 18px sans-serif';ctx.fillText('SV',35,25);}
+  if(style==='polo'){ctx.fillStyle='#1260a1';ctx.fillRect(27,0,10,20);ctx.fillStyle='#d5e6ef';ctx.fillRect(31,7,3,3);ctx.fillRect(31,14,3,3);}
+})]));
+const patternedSleeve=outfitTexture(ctx=>{
+  ctx.fillStyle='#20242b';ctx.fillRect(0,0,64,64);ctx.fillStyle='#7bc4e6';
+  ctx.font='bold 13px sans-serif';for(let y=4;y<62;y+=16)for(let x=1;x<64;x+=22){ctx.save();ctx.translate(x+(y%32?0:7),y);ctx.rotate(-.2);ctx.fillText('SV',0,10);ctx.restore();}
+  ctx.fillStyle='#5ba4c9';for(let y=12;y<60;y+=16)for(let x=8;x<60;x+=18)ctx.fillRect(x,y,4,3);
+});
 function faceForPerson(style){
   if(style==='macek'){
     // The same warm, blue-eyed smiling face is shared by the NPC and player.
@@ -2321,6 +2335,9 @@ function faceForPerson(style){
       ctx.fillStyle='#eab887';ctx.fillRect(0,0,64,64);
       // One clean, straight hairline across the whole face: no side pieces hanging lower.
       ctx.fillStyle='#a68050';ctx.fillRect(0,0,64,8);
+      // Subtle sandy-brown chin goatee/stubble along the jaw.
+      ctx.fillStyle='#b5865e';ctx.fillRect(22,56,20,5);ctx.fillRect(18,53,4,4);ctx.fillRect(42,53,4,4);
+      ctx.fillStyle='#966a47';ctx.fillRect(26,58,12,3);
       // The same flat face as the other teachers (brows, eyes, nose and smile all in the
       // same places), with Mr. Macek's own blue eyes. Nothing sticks out of the face.
       teacherFeatures(ctx,{brow:'#9a744c',iris:'#5181a3'});
@@ -2403,18 +2420,11 @@ function staffLook(style){
     // long hair frames her face; the men's hair stops in one level line.
     ctx.fillRect(0,0,64,10);if(isArt){ctx.fillRect(0,10,7,40);ctx.fillRect(57,10,7,40);}
     ctx.fillStyle=isArt?'#bba47d':hair;ctx.fillRect(10,23,16,3);ctx.fillRect(38,23,16,3);
-    if(isArt){
-      // Ms. Eriksen: relaxed, slightly lowered lids over normal-sized eyes, centred and mirrored.
-      ctx.fillStyle='#c9946f';ctx.fillRect(13,30,11,1);ctx.fillRect(40,30,11,1);
-      ctx.fillStyle='#fff5e8';ctx.fillRect(13,31,11,4);ctx.fillRect(40,31,11,4);
-      ctx.fillStyle='#453f37';ctx.fillRect(16,31,5,4);ctx.fillRect(43,31,5,4);
-      ctx.fillStyle='#292d30';ctx.fillRect(17,32,3,3);ctx.fillRect(44,32,3,3);
-    }else{
-      ctx.fillStyle='#fff5e8';ctx.fillRect(11,29,15,8);ctx.fillRect(38,29,15,8);
-      ctx.fillStyle=isMacek?'#5181a3':'#453f37';ctx.fillRect(15,29,7,8);ctx.fillRect(42,29,7,8);
-      ctx.fillStyle='#292d30';ctx.fillRect(17,30,3,6);ctx.fillRect(44,30,3,6);
-    }
+    ctx.fillStyle='#fff5e8';ctx.fillRect(11,29,15,8);ctx.fillRect(38,29,15,8);
+    ctx.fillStyle=isMacek?'#5181a3':isArt?'#5a6b47':'#453f37';ctx.fillRect(15,29,7,8);ctx.fillRect(42,29,7,8);
+    ctx.fillStyle='#292d30';ctx.fillRect(17,30,3,6);ctx.fillRect(44,30,3,6);
     ctx.fillStyle='#cb9876';ctx.fillRect(28,37,8,7);
+    if(isMacek){ctx.fillStyle='#b5865e';ctx.fillRect(22,56,20,5);ctx.fillRect(18,53,4,4);ctx.fillRect(42,53,4,4);ctx.fillStyle='#966a47';ctx.fillRect(26,58,12,3);}
     if(isMusic){ctx.fillStyle='#41372e';ctx.fillRect(7,43,50,17);ctx.fillRect(4,38,7,13);ctx.fillRect(53,38,7,13);}
     ctx.fillStyle='#9c6650';ctx.fillRect(20,49,25,6);ctx.fillStyle='#fff4dd';ctx.fillRect(21,49,23,3);
     if(style==='mcmichael'){
@@ -2422,15 +2432,19 @@ function staffLook(style){
     }
   });
   const shirt=outfitTexture(ctx=>{
-    ctx.fillStyle=isMacek?'#202027':isArt?'#16191e':isPE?'#202e49':isMusic?'#202429':'#eee6d6';ctx.fillRect(0,0,64,64);
-    if(isMacek){for(let y=3;y<64;y+=10){ctx.fillStyle='#e9e8e0';ctx.fillRect(0,y,64,2);ctx.fillStyle='#b84348';ctx.fillRect(0,y+3,64,2);ctx.fillStyle='#cbc7bc';ctx.fillRect(0,y+6,64,1);}ctx.fillStyle='#171b23';ctx.fillRect(25,0,14,16);}
+    ctx.fillStyle=isMacek?'#171b22':isArt?'#16191e':isPE?'#202e49':isMusic?'#202429':'#eee6d6';ctx.fillRect(0,0,64,64);
+    if(isMacek){
+      for(let y=0;y<64;y+=8)for(let x=0;x<64;x+=8){ctx.fillStyle=(x+y)%24?'#1d2027':'#24272e';ctx.fillRect(x,y,8,8);}
+      ctx.fillStyle='#11141a';ctx.fillRect(22,0,20,6);
+      ctx.fillStyle='#70b6df';ctx.font='bold 18px sans-serif';ctx.fillText('SV',35,25);
+    }
     if(isArt){ctx.fillStyle='#a54cb0';ctx.fillRect(17,0,30,64);ctx.fillStyle='#803f91';ctx.fillRect(17,0,30,3);}
     if(isPE){ctx.fillStyle='#142039';ctx.fillRect(5,44,54,3);ctx.fillRect(10,46,44,14);ctx.fillStyle='#8b8d94';ctx.fillRect(20,2,2,26);ctx.fillRect(43,2,2,26);}
     if(isMusic){ctx.fillStyle='#777d83';ctx.fillRect(31,0,2,27);ctx.fillStyle='#d0d0c7';ctx.fillRect(30,23,4,5);}
     if(style==='mcmichael'){ctx.fillStyle='#d7cfbd';for(let x=2;x<64;x+=6)ctx.fillRect(x,0,1,64);ctx.fillRect(0,58,64,6);}
   });
   const back=isArt?makeFlatTex(22,25,30):isPE?makeFlatTex(32,46,73):isMusic?makeFlatTex(32,36,41):shirt;
-  const sleeve=isMacek?outfitTexture(ctx=>{ctx.fillStyle=skin;ctx.fillRect(0,0,64,64);ctx.fillStyle='#202027';ctx.fillRect(0,0,64,18);for(let y=3;y<18;y+=7){ctx.fillStyle='#f3eddf';ctx.fillRect(0,y,64,2);ctx.fillStyle='#bb4549';ctx.fillRect(0,y+3,64,2);}}):isArt?outfitTexture(ctx=>{ctx.fillStyle='#16191e';ctx.fillRect(0,0,64,44);ctx.fillStyle=skin;ctx.fillRect(0,44,64,20);}):back;
+  const sleeve=isMacek?patternedSleeve:isArt?outfitTexture(ctx=>{ctx.fillStyle='#16191e';ctx.fillRect(0,0,64,44);ctx.fillStyle=skin;ctx.fillRect(0,44,64,20);}):back;
   const pants=outfitTexture(ctx=>{
     ctx.fillStyle=isMusic?'#8e9398':isPE?'#c4b28c':style==='mcmichael'?'#30282b':'#20232a';ctx.fillRect(0,0,64,64);
     if(isPE){ctx.fillStyle='#a89470';ctx.fillRect(3,14,20,22);ctx.fillRect(42,14,18,22);ctx.fillStyle=skin;ctx.fillRect(0,38,64,26);}
@@ -2454,7 +2468,15 @@ function styleStaffPerson(npc,style){
     const hand=bodyPart(.22,.17,.25,look.skin);hand.position.y=-.70;arm.add(hand);arm.userData.hand=hand;
     const looseTrousers=style==='mcmichael';
     leg.position.set(side*(looseTrousers?.17:.145),.69,0);resize(leg.children[0],looseTrousers?.32:.27,.60,.28);leg.children[0].position.y=-.30;paint(leg.children[0],look.pants);
-    if(isMacek&&side===-1){part(arm,'watch strap',.235,.09,.27,0x191c23,0,-.57,0);part(arm,'watch face',.15,.12,.04,0x3c4653,0,-.57,.15);}
+    if(isMacek){
+      const cap=bodyPart(.24,.21,.27,look.shirt);cap.name='shirt sleeve cap';cap.position.y=-.10;arm.add(cap);npc.shoulderCaps.push(cap);
+      if(side===-1){part(arm,'watch strap',.235,.09,.27,0x191c23,0,-.57,0);part(arm,'watch face',.15,.12,.04,0x3c4653,0,-.57,.15);}
+      else{
+        part(arm,'bracelet leather',.235,.035,.265,0x6e472b,0,-.54,0);
+        part(arm,'bracelet copper',.235,.03,.265,0xb87333,0,-.575,0);
+        part(arm,'bracelet beads',.235,.035,.265,0x22262d,0,-.61,0);
+      }
+    }
     part(leg,'shoe',.29,.14,.4,isPE?0x8b8b83:style==='mcmichael'?0xe6e5df:0x24262b,0,-.62,.055);
     part(leg,'shoe sole',.3,.035,.41,isMusic||isPE||style==='mcmichael'?0xe5e3d9:0x31333a,0,-.68,.055);
     if(isPE)part(leg,'white sock',.275,.17,.285,0xf0eee8,0,-.48,0);
@@ -2493,7 +2515,7 @@ function styleStaffPerson(npc,style){
   }
   if(isPE)part(npc.group,'hood',.55,.19,.23,0x18263e,0,1.34,-.19);
   if(isMusic){for(const side of [-1,1])part(npc.group,'beard side',.055,.17,.27,0x41372e,side*.245,1.47,.095);part(npc.group,'beard chin',.38,.055,.13,0x41372e,0,1.37,.19);}
-  if(isMacek){for(const side of [-1,1]){const collar=part(npc.group,'polo collar',.16,.10,.04,0x191d25,side*.1,1.32,.18);collar.rotation.z=side*.35;npc.poloCollars.push(collar);}}
+  if(isMacek){for(const side of [-1,1]){const collar=part(npc.group,'polo collar',.16,.10,.04,0x191d25,side*.1,1.32,.18);collar.rotation.z=side*.35;collar.visible=false;npc.poloCollars.push(collar);}}
   const strapColor=isMacek?0x242321:0x242a31;
   for(const side of [-1,1]){const strap=part(npc.group,'lanyard',.025,.55,.025,strapColor,side*.08,1.08,.18);strap.rotation.z=side*-.24;}
   if(isMacek){for(const side of [-1,1])for(let i=0;i<5;i++)part(npc.group,'Gators orange',.026,.035,.028,0xe57b3f,side*(.12-i*.014),1.28-i*.075,.196);}
@@ -2681,7 +2703,17 @@ function stylePerson(npc,style){
   } else if(style==='micco'){
     part(.52,.09,.50,0x79502e,0,1.79,-.01);part(.055,.58,.24,0x79502e,-.262,1.46,-.04);part(.055,.58,.24,0x79502e,.262,1.46,-.04);
     part(.49,.60,.085,0x69452b,0,1.46,-.26);
-    for(const arm of [npc.armL,npc.armR])arm.children[0].material.forEach(m=>m.map=shirt);
+    for(const side of [-1,1]){part(.19,.025,.035,0x5b3f6e,side*.12,1.62,.26);part(.19,.025,.035,0x5b3f6e,side*.12,1.48,.26);for(const x of [-.09,.09])part(.025,.14,.035,0x5b3f6e,side*.12+x,1.55,.26);}
+    part(.06,.025,.035,0x5b3f6e,0,1.58,.26);
+    for(const arm of [npc.armL,npc.armR]){
+      arm.children[0].material.forEach(m=>m.map=shirt);
+      const hand=bodyPart(.22,.16,.22,skinTex);hand.position.y=-.74;arm.add(hand);
+    }
+    for(const leg of [npc.legL,npc.legR]){
+      const shoe=new THREE.Mesh(new THREE.BoxGeometry(.26,.13,.35),new THREE.MeshLambertMaterial({color:0x24262b}));
+      shoe.position.set(0,-.62,.04);leg.add(shoe);
+    }
+    npc.group.scale.set(.93,.90,.93);
   } else if(style==='eiler'){
     // Principal Eiler: charcoal suit, white shirt, striped tie and brown shoes.
     part(.055,.31,.03,0x70747b,0,1.1,.152);
@@ -2757,6 +2789,9 @@ function stylePerson(npc,style){
       const arm=npc[name],limb=arm.children[0];resize(limb,.24,.62,.27);limb.position.y=-.31;arm.position.set(side*.43,1.32,0);
       const hand=bodyPart(.24,.19,.27,skinTex);hand.position.y=-.70;arm.add(hand);
       const cap=bodyPart(.26,.23,.29,shirt);cap.position.y=-.1;arm.add(cap);npc.shoulderCaps.push(cap);
+      const wristPart=(w,h,d,color,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshLambertMaterial({color}));m.position.set(x,y,z);arm.add(m);return m;};
+      if(side===-1){wristPart(.255,.09,.285,0x191c23,0,-.57,0);wristPart(.15,.12,.04,0x3c4653,0,-.57,.155);}
+      else{wristPart(.255,.035,.285,0x6e472b,0,-.54,0);wristPart(.255,.03,.285,0xb87333,0,-.575,0);wristPart(.255,.035,.285,0x22262d,0,-.61,0);}
       const leg=npc[side<0?'legL':'legR'];leg.position.set(side*.16,.66,0);resize(leg.children[0],.28,.58,.29);leg.children[0].position.y=-.29;
       const shoe=new THREE.Mesh(new THREE.BoxGeometry(.3,.14,.4),new THREE.MeshLambertMaterial({color:0x202329}));shoe.position.set(0,-.60,.05);leg.add(shoe);
       part(.055,.15,.2,0xeab887,side*.295,1.61,0);
@@ -3182,25 +3217,12 @@ function updateStaffActivities(dt){
   const sameFloor=Math.abs(player.pos.y-mcmichael.pos.y)<2.5,distanceSquared=dx*dx+dz*dz;
   if(!sameFloor||distanceSquared>49)staffRoutine.spanishWasNear=false;
   if(sameFloor&&distanceSquared<25&&!staffRoutine.spanishWasNear&&staffRoutine.spanishCooldown===0){
-    showBubble(mcmichael,'Â¡Hola! Â¿CÃ³mo estÃ¡s?');staffRoutine.spanishWasNear=true;staffRoutine.spanishCooldown=12;
+    showBubble(mcmichael,'¡Hola! ¿Cómo estás?');staffRoutine.spanishWasNear=true;staffRoutine.spanishCooldown=12;
   }
 }
 // Preserve the historical actor order so older 10/11/13-character saves restore.
 const campusActors=[sirD,macek,kay,ellie,percy,micco,shields,unicorn,eiler,cookie,schoolOfficer,sleeves,js,eriksen,mullet,wingenbach,mcmichael];
 const MAX_CAMPUS_ACTORS=campusActors.length;
-// Cache both outfits once; switching clothes does not allocate textures per frame.
-function outfitTexture(draw){const c=document.createElement('canvas');c.width=c.height=64;draw(c.getContext('2d'));const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;return t;}
-const macekClothes=Object.fromEntries(['polo','black'].map(style=>[style,outfitTexture(ctx=>{
-  ctx.fillStyle=style==='polo'?'#1685d1':'#171b22';ctx.fillRect(0,0,64,64);
-  for(let y=0;y<64;y+=8)for(let x=0;x<64;x+=8){ctx.fillStyle=style==='polo'?((x+y)%24?'#1688d5':'#127bc6'):((x+y)%24?'#1d2027':'#24272e');ctx.fillRect(x,y,8,8);}
-  if(style==='black'){ctx.fillStyle='#70b6df';ctx.font='bold 18px sans-serif';ctx.fillText('SV',35,25);}
-  if(style==='polo'){ctx.fillStyle='#1260a1';ctx.fillRect(27,0,10,20);ctx.fillStyle='#d5e6ef';ctx.fillRect(31,7,3,3);ctx.fillRect(31,14,3,3);}
-})]));
-const patternedSleeve=outfitTexture(ctx=>{
-  ctx.fillStyle='#20242b';ctx.fillRect(0,0,64,64);ctx.fillStyle='#7bc4e6';
-  ctx.font='bold 13px sans-serif';for(let y=4;y<55;y+=16)for(let x=1;x<64;x+=22){ctx.save();ctx.translate(x+(y%32?0:7),y);ctx.rotate(-.2);ctx.fillText('SV',0,10);ctx.restore();}
-  ctx.fillStyle='#101319';ctx.fillRect(0,55,64,9);ctx.fillStyle='#8098a8';ctx.fillRect(22,56,17,6);
-});
 // The roaming CIRC character keeps his black SV shirt and patterned sleeves.
 // A playable selection never changes this independent campus character.
 const macekBodies=[];
@@ -3281,9 +3303,9 @@ function updateIdentityStatus(){
   const character=STAFF_CHARACTERS.find(c=>c.id===playerCharacter),pending=teacherChoicePending();
   // Until a teacher is picked, the player is Mr. Macek and is asked, never forced, to choose.
   const ask=pending?`${LEGACY_STUDENT_SAVE?'Your world and builds are saved. ':''}Pick your Specials teacher. Until you do, you play as `:'';
-  identityStatus.textContent=`${ask}${character.name} Â· ${character.role}. ${view==='third'?'Third-person camera.':'First-person camera.'} Press C while playing to switch views.`;
+  identityStatus.textContent=`${ask}${character.name} · ${character.role}. ${view==='third'?'Third-person camera.':'First-person camera.'} Press C while playing to switch views.`;
   // One plain word on the big button; the character is shown, and changeable, beside it.
-  document.getElementById('enter').textContent=hasPlayed?'â–¶ RESUME':'â–¶ PLAY';
+  document.getElementById('enter').textContent=hasPlayed?'▶ RESUME':'▶ PLAY';
   const playingAs=document.getElementById('playingAs');
   if(playingAs)playingAs.textContent=`Playing as: ${character.name}`;
   const change=document.getElementById('changeCharacter');
@@ -3364,7 +3386,7 @@ const SHIELDS_LINES=[
   'Welcome to ECMS! Sign in at the desk and have a great day.',
   'Morning! Walking feet in the hallway, please.',
   'Good to see you. Need directions to the gym?',
-  'Hi there â€” the office is just past the glass.',
+  'Hi there — the office is just past the glass.',
   'Have a good one. I am right here if you need me.'
 ];
 let shieldsClock=0,shieldsGreetTimer=0,shieldsWasNear=false,shieldsLastLine='';
@@ -3651,10 +3673,20 @@ const player = {
 camera.position.copy(player.pos);
 
 const keys = {};
+let lastSpaceTapAt=-1e9,spaceArmed=false;
+function toggleFlight(){
+  if(!started||gameMode!=='creative'||isWorldSleeping()||activities?.isDriving())return false;
+  player.flying=!player.flying;
+  player.vel.set(0,0,0);
+  if(typeof flashFly==='function')flashFly(player.flying);
+  if(typeof refreshFlightHUD==='function')refreshFlightHUD();
+  return true;
+}
 function releaseInput(){
   if(releasingInput)return;
   releasingInput=true;
   inputEpoch++;
+  lastSpaceTapAt=-1e9;spaceArmed=false;
   for(const k in keys) keys[k]=false;
   lookActive=false;
   releaseTouch();
@@ -3667,8 +3699,21 @@ function noteTouch(){lastTouchAt=performance.now();}
 addEventListener('touchstart',noteTouch,{passive:true});
 addEventListener('pointerdown',e=>{if(e.pointerType&&e.pointerType!=='mouse')noteTouch();},{passive:true});
 function isFormInput(event){return ['INPUT','SELECT','TEXTAREA','BUTTON'].includes(event.target?.tagName);}
-addEventListener('keydown', e => { if(started&&!isFormInput(e)){keys[e.code] = true;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();} });
-addEventListener('keyup',   e => { keys[e.code] = false; });
+addEventListener('keydown', e => {
+  if(started&&!isFormInput(e)){
+    if(e.code==='Space'&&!e.repeat&&!keys['Space']){
+      const now=performance.now();
+      if(spaceArmed&&now-lastSpaceTapAt<=350){spaceArmed=false;lastSpaceTapAt=-1e9;toggleFlight();}
+      else{lastSpaceTapAt=now;spaceArmed=false;}
+    }
+    keys[e.code] = true;
+    if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
+  }
+});
+addEventListener('keyup', e => {
+  if(e.code==='Space'&&performance.now()-lastSpaceTapAt<=350)spaceArmed=true;
+  keys[e.code] = false;
+});
 addEventListener('blur', pauseGame);
 addEventListener('orientationchange', ()=>setControlsLayout(controlsLayout));
 
@@ -3730,7 +3775,7 @@ function pauseGame(){
   releaseInput();
   startEl.classList.remove('hidden');
   document.body.classList.remove('world-playing');
-  if(hasPlayed)document.getElementById('enter').textContent='â–¶ RESUME';
+  if(hasPlayed)document.getElementById('enter').textContent='▶ RESUME';
   document.getElementById('enter').focus?.({preventScroll:true});
   refreshMenuStatus();
 }
@@ -3774,7 +3819,7 @@ document.getElementById('overview').addEventListener('click',()=>{
   player.pos.set(61,32,43);player.yaw=.4;player.pitch=-.6;player.flying=true;player.vel.set(0,0,0);camera.position.copy(player.pos);startGame();persistSave();
 });
 function worldEdgeText(){
-  const minus=n=>n<0?'âˆ’'+Math.abs(n):String(n);
+  const minus=n=>n<0?'−'+Math.abs(n):String(n);
   return `Your world has edges: X ${minus(travelLimits.minX)} to ${travelLimits.maxX}, Z ${minus(travelLimits.minZ)} to ${travelLimits.maxZ}.`;
 }
 for(const [id,min,max] of [['travelX',travelLimits.minX,travelLimits.maxX],['travelY',travelLimits.minY,travelLimits.maxY],['travelZ',travelLimits.minZ,travelLimits.maxZ]]){
@@ -3860,11 +3905,7 @@ addEventListener('keydown', e => {
 
 // Flight height is independent of sprint: SPACE rises, V descends, SHIFT speeds up.
 addEventListener('keydown', e => {
-  if (e.code === 'KeyF' && !e.repeat && started && gameMode==='creative' && !isFormInput(e) && !isWorldSleeping() && !activities?.isDriving()) {
-    player.flying = !player.flying;
-    player.vel.set(0, 0, 0);
-    if (typeof flashFly === 'function') flashFly(player.flying);
-  }
+  if (e.code === 'KeyF' && !e.repeat && !isFormInput(e)) toggleFlight();
 });
 
 // Drag-look is the fallback when pointer lock is absent or was released.
@@ -4244,7 +4285,7 @@ function hostInteract(){
 function refreshActivityPrompt(){
   const prompt=started&&!inventoryOpen&&!isWorldSleeping()&&activities?(activities.getPrompt()||hostPrompt()):'';
   activityButton.hidden=!prompt;touchActivityButton.hidden=!prompt;
-  if(prompt!==activityPrompt){activityPrompt=prompt;activityButton.textContent=prompt+' Â· E';touchActivityButton.textContent=prompt;}
+  if(prompt!==activityPrompt){activityPrompt=prompt;activityButton.textContent=prompt+' · E';touchActivityButton.textContent=prompt;}
 }
 function interactWithActivity(event){
   if(event){event.preventDefault();event.stopPropagation?.();}
@@ -4620,7 +4661,7 @@ const cozyPanel=document.createElement('section');cozyPanel.className='animal-pa
 const cozyTitle=document.createElement('h3');cozyTitle.textContent='Cozy time';
 const cozyHelp=document.createElement('p');cozyHelp.textContent='Choose Cup of tea, find a cozy spot like a roof, and use Interact (E) to sit down. Move to stand up. Face a Bookshelf and use Interact to read a story out loud.';
 const cozyGrid=document.createElement('div');cozyGrid.className='crafting-grid';
-const teaChoice=document.createElement('button');teaChoice.type='button';teaChoice.className='craft-choice';teaChoice.dataset.tool='tea';teaChoice.textContent='â˜• Cup of tea';
+const teaChoice=document.createElement('button');teaChoice.type='button';teaChoice.className='craft-choice';teaChoice.dataset.tool='tea';teaChoice.textContent='☕ Cup of tea';
 teaChoice.addEventListener('click',event=>{if(!inventoryOpen||!activities)return;chosenAnimal=null;chosenGarden=null;closeInventory(true,event);activities.equipTea();});
 cozyGrid.appendChild(teaChoice);
 cozyPanel.append(cozyTitle,cozyHelp,cozyGrid);
@@ -4646,14 +4687,14 @@ function refreshInventory(){
   for(const {id,recipe,button} of craftingChoices){
     const locked=recipe.after&&!hardcore?.completed.includes(recipe.after),owned=recipe.tool&&hardcore?.tools[recipe.tool];
     button.disabled=!!(locked||owned||Object.entries(recipe.costs).some(([k,n])=>inventory[k]<n));
-    button.textContent=(owned?'Made: ':locked?'Locked: ':'Craft: ')+recipe.name+' Â· '+Object.entries(recipe.costs).map(([k,n])=>n+' '+BLOCKS[k].name).join(' + ');
+    button.textContent=(owned?'Made: ':locked?'Locked: ':'Craft: ')+recipe.name+' · '+Object.entries(recipe.costs).map(([k,n])=>n+' '+BLOCKS[k].name).join(' + ');
   }
   for(const {kind,button} of animalChoices){
     const unlocked=gameMode==='hardcore'?hardcore.unlocks.animals.includes(kind):kind!=='fish'||fishUnlocked;
-    button.disabled=!unlocked;button.textContent=kind[0].toUpperCase()+kind.slice(1)+(unlocked?'':' Â· Locked');
+    button.disabled=!unlocked;button.textContent=kind[0].toUpperCase()+kind.slice(1)+(unlocked?'':' · Locked');
   }
   const rodUnlocked=!!activities&&(gameMode==='hardcore'?hardcore.unlocks.animals.includes('fish'):fishUnlocked);
-  fishingRodChoice.disabled=!rodUnlocked;fishingRodChoice.textContent='Fishing rod'+(rodUnlocked?'':' Â· Build a pond first');
+  fishingRodChoice.disabled=!rodUnlocked;fishingRodChoice.textContent='Fishing rod'+(rodUnlocked?'':' · Build a pond first');
   const placedAnimals=activities?activities.placedCount():0;
   putAwayAllChoice.disabled=!placedAnimals;putAwayAllChoice.textContent=placedAnimals?`Put away all my animals (${placedAnimals})`:'Put away all my animals';
   cozyPanel.hidden=isGroupRoom||!activities;
@@ -4710,7 +4751,7 @@ backLink.style.cssText = `
   border-radius: 6px; padding: 7px 10px; box-shadow: 2px 2px 0 #0006;
 `;
 const saveTag = document.createElement('div');
-saveTag.id='saveStateIndicator';saveTag.setAttribute('role','status');saveTag.textContent = 'Autosave Â· this device';
+saveTag.id='saveStateIndicator';saveTag.setAttribute('role','status');saveTag.textContent = 'Autosave · this device';
 saveTag.style.cssText = `
   background: #0008; color: #8fffa8; border: 2px solid #000;
   border-radius: 6px; padding: 7px 10px; opacity: .5; transition: opacity .2s;
@@ -4735,15 +4776,25 @@ resetBtn.addEventListener('click', () => {
 });
 const menuBtn=document.createElement('button');menuBtn.id='menuToggle';menuBtn.type='button';menuBtn.textContent='Menu';menuBtn.style.cssText=resetBtn.style.cssText;
 menuBtn.addEventListener('click',()=>{pauseGame();persistSave();});
-const saveBtn=document.createElement('button');saveBtn.id='saveGame';saveBtn.type='button';saveBtn.textContent='Save';saveBtn.title='Save on this device. Menu â†’ Save or load a world has Download Save.';saveBtn.style.cssText=backLink.style.cssText;saveBtn.addEventListener('click',()=>{if(persistSave())quest?.signal('saved');});
+const saveBtn=document.createElement('button');saveBtn.id='saveGame';saveBtn.type='button';saveBtn.textContent='Save';saveBtn.title='Save on this device. Menu → Save or load a world has Download Save.';saveBtn.style.cssText=backLink.style.cssText;saveBtn.addEventListener('click',()=>{if(persistSave())quest?.signal('saved');});
 const inventoryBtn=document.createElement('button');inventoryBtn.id='inventoryToggle';inventoryBtn.type='button';inventoryBtn.textContent='Blocks';inventoryBtn.setAttribute('aria-label','Blocks / Inventory');inventoryBtn.style.cssText=backLink.style.cssText;
 inventoryBtn.setAttribute('aria-keyshortcuts','I');inventoryBtn.setAttribute('aria-haspopup','dialog');inventoryBtn.addEventListener('click',openInventory);
 controlsSelect=controlsMenu;
 const helpBtn=document.createElement('button');helpBtn.id='helpToggle';helpBtn.type='button';helpBtn.textContent='Help';
 helpBtn.addEventListener('click',()=>{pauseGame();const guide=document.getElementById('howToPlay');guide.open=true;guide.scrollIntoView?.({block:'start'});guide.querySelector?.('summary')?.focus?.();});
+const flyHudBtn=document.createElement('button');flyHudBtn.id='flyToggle';flyHudBtn.type='button';flyHudBtn.title='Press F or double-tap Space to fly (Creative mode)';
+flyHudBtn.addEventListener('click',()=>{toggleFlight();renderer.domElement.focus?.({preventScroll:true});});
+const questHudBtn=document.createElement('button');questHudBtn.id='questToggle';questHudBtn.type='button';questHudBtn.textContent='Tutorial';questHudBtn.title='Learn to walk, jump, fly and build step by step';
+questHudBtn.hidden=isGroupRoom;questHudBtn.addEventListener('click',()=>startQuest());
+function refreshFlightHUD(){
+  flyHudBtn.hidden=gameMode!=='creative';
+  flyHudBtn.setAttribute('aria-pressed',String(!!player.flying));
+  flyHudBtn.textContent=player.flying?'Flying · Space ⬆️ V ⬇️':'Fly · F / 2×Space';
+}
+refreshFlightHUD();
 const clockBadge=document.createElement('div');clockBadge.id='gameClock';clockBadge.setAttribute('aria-label','World time');
-ctrlPanel.append(menuBtn, inventoryBtn, saveBtn, helpBtn, saveTag, clockBadge);
-for(const control of [menuBtn,inventoryBtn,saveBtn,helpBtn,saveTag])control.style.cssText='';
+ctrlPanel.append(menuBtn, inventoryBtn, saveBtn, helpBtn, flyHudBtn, questHudBtn, saveTag, clockBadge);
+for(const control of [menuBtn,inventoryBtn,saveBtn,helpBtn,flyHudBtn,questHudBtn,saveTag])control.style.cssText='';
 document.body.appendChild(ctrlPanel);
 document.getElementById('worldManagement').append(backLink,resetBtn);
 document.getElementById('tryPanel').appendChild(document.getElementById('schoolExplore'));
@@ -4752,7 +4803,7 @@ function flashSaved(){
   saveTag.textContent = 'Saved on this device \u2713';
   saveTag.style.opacity = '1';
   clearTimeout(flashSaved._t);
-  flashSaved._t = setTimeout(() => { saveTag.style.opacity = '.8'; saveTag.textContent = 'Autosave Â· this device'; }, 1600);
+  flashSaved._t = setTimeout(() => { saveTag.style.opacity = '.8'; saveTag.textContent = 'Autosave · this device'; }, 1600);
 }
 
 // ---------- flight-mode toast ----------
@@ -4766,7 +4817,8 @@ flyTag.style.cssText = `
 `;
 document.body.appendChild(flyTag);
 function flashFly(on){
-  flyTag.textContent = on ? (touchLayoutOn()?'\u2708 Flight ON Â· JUMP up Â· DOWN down':'\u2708 Flight ON Â· SPACE up Â· V down Â· SHIFT faster') : 'Flight OFF';
+  if(typeof refreshFlightHUD==='function')refreshFlightHUD();
+  flyTag.textContent = on ? (touchLayoutOn()?'\u2708 Flight ON · JUMP up · DOWN down':'\u2708 Flight ON · SPACE up · V down · SHIFT faster') : 'Flight OFF';
   flyTag.style.color = on ? '#8fffa8' : '#ffd0d0';
   flyTag.style.opacity = '1';
   clearTimeout(flashFly._t);
@@ -4781,7 +4833,7 @@ coordHUD.style.cssText = `
 `;
 document.body.appendChild(coordHUD);
 function timeLabel() {
-  // dayTime 0..1 â†’ clock; sunrise ~0, noon 0.25, sunset 0.5, midnight 0.75 (matches sin arc)
+  // dayTime 0..1 → clock; sunrise ~0, noon 0.25, sunset 0.5, midnight 0.75 (matches sin arc)
   const hours = ((dayTime * 24) + 6) % 24;
   const h = Math.floor(hours), m = Math.floor((hours - h) * 60);
   const ampm = h < 12 ? 'AM' : 'PM';
@@ -4801,7 +4853,7 @@ function busStatusLine(){
   return `School buses start their rear-loop trip at ${busClockLabel} game time.`;
 }
 function refreshMenuStatus(){
-  if(worldClockEl)worldClockEl.textContent=`World clock: ${timeLabel()} Â· Position: ${Math.floor(player.pos.x)}, ${Math.floor(player.pos.y)}, ${Math.floor(player.pos.z)} Â· ${isGroupRoom?'Shared build room':isHardcoreWorld?'Your Hardcore resource world':busStatusLine()}`;
+  if(worldClockEl)worldClockEl.textContent=`World clock: ${timeLabel()} · Position: ${Math.floor(player.pos.x)}, ${Math.floor(player.pos.y)}, ${Math.floor(player.pos.z)} · ${isGroupRoom?'Shared build room':isHardcoreWorld?'Your Hardcore resource world':busStatusLine()}`;
 }
 let nextHudUpdate=0, frameFps=0, frameWindowStart=0, frameCount=0;
 function recordFrame(now,interval){
@@ -4822,7 +4874,7 @@ function updateCoordHUD() {
   const bk = BLOCKS[BLOCK_KEYS[selected]];
   coordHUD.innerHTML =
     (activities?.isFishing()?'Tool: Fishing rod':activities?.hasTea?.()?'Holding: Cup of tea':chosenGarden?`Garden: ${GARDEN_KITS[chosenGarden]}`:chosenAnimal?`Animal: ${chosenAnimal}`:`<span style="color:${bk.swatch}">\u25a0</span> ${bk.name}`) +
-    (gameMode!=='creative'?` (${inventory[BLOCK_KEYS[selected]]})<br>${gameMode==='hardcore'?'Hardcore Â· ':''}Health ${Math.ceil(health)}/20 Â· Air ${Math.ceil(breath)}/10`:' Â· Creative') +
+    (gameMode!=='creative'?` (${inventory[BLOCK_KEYS[selected]]})<br>${gameMode==='hardcore'?'Hardcore · ':''}Health ${Math.ceil(health)}/20 · Air ${Math.ceil(breath)}/10`:' · Creative') +
     (!isHardcoreWorld&&!isGroupRoom&&dayTime>=.43&&dayTime<=.56?'<br>Sunset meet-up: ECMS entrance':'') +
     (!isHardcoreWorld&&!isGroupRoom&&cookieOnDuty(dayTime)?'<br>Cookie Man: evening sweep':'');
 }
@@ -4986,7 +5038,7 @@ let touchButtonsHidden=false;
 function setTouchButtonsHidden(hidden){
   touchButtonsHidden=!!hidden;
   if(touchButtonsHidden)document.body.classList.add('touch-buttons-hidden');else document.body.classList.remove('touch-buttons-hidden');
-  hideControlsBtn.textContent=touchButtonsHidden?'ðŸ‘ Show buttons':'ðŸ™ˆ Hide buttons';
+  hideControlsBtn.textContent=touchButtonsHidden?'👁 Show buttons':'🙈 Hide buttons';
   hideControlsBtn.setAttribute('aria-pressed',String(touchButtonsHidden));
   if(touchButtonsHidden)releaseTouch();
 }
@@ -5018,7 +5070,7 @@ document.getElementById('status').textContent=isHardcoreWorld?'Gather logs from 
 if(isGroupRoom){
   const status=document.getElementById('status');status.textContent='Group room: waiting for the teacher to admit you.';
   for(const control of [saveBtn,resetBtn,modeSelect,document.getElementById('downloadWorld'),document.getElementById('loadWorld'),document.getElementById('areaLabelText'),document.getElementById('removeAreaLabel')])control.disabled=true;
-  saveTag.textContent='Shared room Â· personal worlds kept';
+  saveTag.textContent='Shared room · personal worlds kept';
   document.getElementById('keepWorkGuide').textContent='Room blocks stay in the running room service. Save and Download Save are for solo worlds and are off here. Restarting the room service clears this prototype world.';
   document.getElementById('classReminder').textContent='Wait for your teacher to admit you. Follow the group building task. Your teacher can pause you or close the room. There is no chat or text-sign tool.';
   document.getElementById('startTip').textContent='This group room shares blocks with admitted players. Your personal worlds stay separate.';
@@ -5045,10 +5097,10 @@ if(isGroupRoom){
     onEdit:edit=>{if(edit.block!==null&&!BLOCKS[edit.block])return;setBlock(edit.x,edit.y,edit.z,edit.block);updateBlockMeshes(edit.x,edit.y,edit.z);},
     onPlayers:showPeers,onStatus:text=>{status.textContent=text;},
     onState:state=>{
-      status.textContent=state.status!=='open'?'The teacher has closed this room.':state.self?.locked?'Waiting for the teacher to admit or resume you.':'Group room Â· Builder '+roomSession.number+' Â· Build together. No chat or text signs.';
+      status.textContent=state.status!=='open'?'The teacher has closed this room.':state.self?.locked?'Waiting for the teacher to admit or resume you.':'Group room · Builder '+roomSession.number+' · Build together. No chat or text signs.';
       if(state.self&&player.pos.distanceTo(new THREE.Vector3(state.self.x,state.self.y,state.self.z))>4){player.pos.set(state.self.x,state.self.y,state.self.z);player.vel.set(0,0,0);}
     },onClosed:()=>{player.vel.set(0,0,0);}});
-  else status.textContent='No active room session. Choose Leave room, then join with your teacherâ€™s code.';
+  else status.textContent='No active room session. Choose Leave room, then join with your teacher’s code.';
   setInterval(()=>{if(started&&roomConnection?.canWrite())roomConnection.move({x:player.pos.x,y:player.pos.y,z:player.pos.z,yaw:player.yaw});},250);
   addEventListener('beforeunload',()=>roomConnection?.dispose());
 }
@@ -5075,7 +5127,5 @@ function startQuest(){
 }
 if(requestedTutorial)startQuest();
 </script>
-  <script src="pro-overhaul.js" defer></script>
 </body>
 </html>
-

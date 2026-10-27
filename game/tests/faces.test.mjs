@@ -70,11 +70,11 @@ for (const [name, person] of Object.entries({ student: a.legacyStudent, sirD: a.
   assert(!sticksOut(a.macek), 'no protruding nose block on the campus Mr. Macek');
 }
 
-// Ms. Eriksen: relaxed eyes, a little less open than the other teachers', and her original smile.
+// Ms. Eriksen: bright, wide-awake 8px-tall eyes matching the other teachers, and her original smile.
 {
   const art = eyes(faceRects(a.playerAvatars.eriksen), 64), music = eyes(faceRects(a.playerAvatars.wingenbach), 64);
-  assert(art.whites[0].w * art.whites[0].h < music.whites[0].w * music.whites[0].h * .5, 'Ms. Eriksen has normal-sized eyes, not bug eyes');
-  assert(art.whites[0].h <= 4, 'her eyes are a little less wide open');
+  assert.equal(art.whites[0].w, music.whites[0].w, 'Ms. Eriksen has full-width eyes');
+  assert.equal(art.whites[0].h, 8, 'Ms. Eriksen has wide-awake 8px-tall eyes, never squinty or half-closed');
   const mouth = list => list.filter(r => r.color === '#9c6650' || (r.color === '#fff4dd' && r.y > 40)).map(r => [r.color, r.x, r.y, r.w, r.h].join());
   assert.deepEqual(mouth(faceRects(a.playerAvatars.eriksen)), mouth(faceRects(a.playerAvatars.mullet)), 'her mouth is back to the original smile');
 }
