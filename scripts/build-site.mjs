@@ -9,7 +9,8 @@ const hash = data => createHash('sha256').update(data).digest('hex');
 // Builds the primary GitHub Pages artifact from committed runtime bytes: the same files stage-release.mjs copies to CyberGrader.io.
 export function buildSite(sourceRoot, outRoot) {
   sourceRoot = realpathSync.native(resolve(sourceRoot));
-  outRoot = resolve(outRoot);
+  const resolvedOut = resolve(outRoot), parent = dirname(resolvedOut);
+  outRoot = existsSync(parent) ? join(realpathSync.native(parent), relative(parent, resolvedOut)) : resolvedOut;
   const rel = relative(sourceRoot, outRoot);
   if (!rel || rel.startsWith('..') || isAbsolute(rel) || rel.includes('/') || rel.includes('\\') || !rel.startsWith('_')) throw new Error('Output must be a new top-level folder starting with _ inside the source checkout.');
   if (existsSync(outRoot) && readdirSync(outRoot).length) throw new Error(`Output folder must be empty: ${outRoot}`);
