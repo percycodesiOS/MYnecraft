@@ -54,7 +54,7 @@ const context=vm.createContext({
 const script=html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace("import * as THREE from 'three';",'');
 const instrumented=script+`\n globalThis.api={
  startGame,releaseInput,setControlsLayout,readWorldBackup,worldBackupText,environmentWantsTouch,touchLayoutOn,menuBtn,renderer,lookLayer,stick,btnJump,
- modeSelect,setGraphics,player,tick,flyTag,camera,doPlace,setBlock,getBlock,persistSave,inventory,inventoryBtn,inventoryChoices,inventoryOverlay,inventoryBack,
+ modeSelect,setGraphics,player,tick,flyTag,camera,doPlace,setBlock,getBlock,persistSave,inventory,inventoryBtn,inventoryChoices,inventoryOverlay,inventoryBack,inventoryClose,inventoryDialog,inventoryGrid,gardenPanel,
  get inventoryOpen(){return inventoryOpen;},get selected(){return selected;},
  get lookActive(){return lookActive;},get started(){return started;},get inputEpoch(){return inputEpoch;},get controls(){return controlsLayout;},
  get movement(){return keys;},get graphics(){return graphics;},get view(){return view;},
@@ -413,6 +413,11 @@ assert.equal(a.inventoryChoices[0].button.disabled,true,'empty survival material
 const beforeEmptyChoice=a.selected;a.inventoryChoices[0].button.events.click[0]();
 assert.equal(a.selected,beforeEmptyChoice);assert.equal(a.inventoryOpen,true,'an empty choice cannot resume with a fabricated item');
 a.inventoryBack.events.click[0]();assert.equal(a.started,true,'Back to game resumes');
+// The close button at the top of the sheet resumes too, and blocks come before the kits.
+a.inventoryBtn.events.click[0]();assert.equal(a.inventoryOpen,true);
+assert.equal(a.inventoryClose['aria-label'],'Back to game');a.inventoryClose.events.click[0]();
+assert.equal(a.inventoryOpen,false);assert.equal(a.started,true,'the top close button resumes');
+{const order=a.inventoryDialog.children;assert(order.indexOf(a.inventoryGrid)<order.indexOf(a.gardenPanel),'blocks are listed before the kits');}
 a.inventoryBtn.events.click[0]();for(const fn of events.blur)fn();
 assert.equal(a.inventoryOpen,false);assert.equal(a.started,false,'losing focus closes the picker into the pause menu');
 assert.equal(a.renderer.domElement.inert,false);
@@ -438,5 +443,26 @@ a.setBlock(90,19,80,'glow');a.setBlock(90,20,80,'water');
 down.events.pointerdown[0]({pointerType:'mouse',preventDefault(){}});
 assert.equal(a.movement.KeyV,true,'mouse DOWN descends inside a water elevator even without flight');
 down.events.pointerup[0]({pointerType:'mouse'});assert.equal(a.movement.KeyV,false);
+
+// Holding the mouse button keeps building while the mouse is locked to the game, like
+// Minecraft; releasing it stops. Without the lock a left drag turns the camera and never digs.
+{
+ a.modeTo('creative');a.startGame();a.releaseInput();a.startGame();
+ const setup=()=>{a.player.pos.set(90.5,30.5,81.5);a.player.vel.set(0,0,0);a.player.yaw=0;a.player.pitch=0;a.player.flying=true;for(let z=77;z<=81;z++)a.setBlock(90,30,z,null);a.setBlock(90,30,76,'stone');};
+ const mouse=(type,button)=>{for(const fn of events[type]||[])fn({button,target:a.renderer.domElement,preventDefault(){}});};
+ const run=seconds=>{for(let t=0;t<seconds;t+=.05)a.tick(now+=50);};
+ setup();a.tick(now+=50);
+ document.pointerLockElement=a.renderer.domElement;
+ mouse('mousedown',2);
+ assert(a.getBlock(90,30,77),'the first click places at once');
+ run(.25);assert(!a.getBlock(90,30,78),'a short pause before repeating, so one click is one block');
+ run(.5);assert(a.getBlock(90,30,78)&&a.getBlock(90,30,79),'holding keeps placing');
+ mouse('mouseup',2);setup();run(1);
+ assert(!a.getBlock(90,30,77),'releasing the button stops placing');
+ document.pointerLockElement=null;
+ a.setBlock(90,30,77,'stone');a.setBlock(90,30,78,'stone');a.tick(now+=50);
+ mouse('mousedown',0);run(1);mouse('mouseup',0);
+ assert(!a.getBlock(90,30,78),'one click still breaks one block');assert.equal(a.getBlock(90,30,77),'stone','an unlocked left drag (turning the camera) does not keep digging');
+}
 
 console.log('PASS: input regression (desktop, phone, iPad, touch laptop, saved controls, both modes, WASD/arrows, independent sprint/flight/descent, inventory open/close/focus/select/place/save).');

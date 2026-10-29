@@ -225,7 +225,7 @@
 .travel input{width:84px;padding:8px;border-radius:4px;font:16px system-ui;min-height:40px;box-sizing:border-box}
 .travel form button{min-height:40px}.travel summary{cursor:pointer;color:#90c5ec}.travel p{font-size:12px!important;margin:8px 0!important}
 </style>
-<link rel="stylesheet" href="start-menu.css?v=teachers-20261027">
+<link rel="stylesheet" href="start-menu.css?v=ui-20261029">
 </head>
 <body>
 <div id="hud"><div id="crosshair"></div></div>
@@ -3442,6 +3442,19 @@ for(const [name,side] of [['armL',-1],['armR',1]]){
   limb.add(wrist);limb.userData.wrist=wrist;
   viewModel.add(limb);viewArms[name]=limb;
 }
+// The arms frame the view from the lower corners instead of covering the middle of the
+// screen, the block bar, or the ground the player is building on. Their place follows the
+// screen shape, so a wide laptop and a narrow phone both see the hands at the edges.
+function layoutViewArms(){
+  const halfH=.72*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)),halfW=halfH*camera.aspect;
+  // Portrait screens are narrow, so the arms hug the edges more closely there.
+  const x=Math.min(.6,Math.max(.2,halfW*(camera.aspect<1?.8:.6))),y=-Math.min(.6,halfH*.98);
+  for(const [name,side] of [['armL',-1],['armR',1]]){viewArms[name].position.set(side*x,y,-.72);viewArms[name].rotation.z=side*.16;}
+}
+layoutViewArms();
+// A short swing of the right arm when a block is placed or broken, like a real hand at work.
+let armSwing=0;
+function swingArm(){armSwing=1;}
 camera.add(viewModel);scene.add(camera);
 const identityStatus=document.getElementById('identityStatus');
 const staffInputs={},staffCanvases={},staffCards={};
@@ -4218,7 +4231,7 @@ function doBreak() {
   setBlock(hit.x, hit.y, hit.z, null);
   recordEdit(hit.x, hit.y, hit.z, null);
   spawnParticles(hit.x, hit.y, hit.z, brokenKey);
-  sndBreak();quest?.signal('broke');
+  sndBreak();swingArm();quest?.signal('broke');
   updateBlockMeshes(hit.x,hit.y,hit.z);
   if(gameMode==='hardcore'){advanceHardcore();refreshHotbar();}
 }
@@ -4239,7 +4252,7 @@ function doPlace() {
     for(const c of cells){setBlock(c.x,c.y,c.z,c.block);recordEdit(c.x,c.y,c.z,c.block);}
     for(const c of cells)updateBlockMeshes(c.x,c.y,c.z);
     if(chosenGarden==='pond'&&globalThis.MYNE_HARDCORE?.inspectHabitat(getBlock,saveState.edits).valid){fishUnlocked=true;persistSave();}
-    sndPlace();document.getElementById('status').textContent=chosenGarden==='pond'?'Pond built! Choose Fish in Inventory. They grow in water; use a fishing rod when they are grown.':chosenGarden==='library'?'Library built! Walk inside, face a bookshelf and use Interact to read a story.':'Planted '+GARDEN_KITS[chosenGarden]+'. Each part can be changed with BREAK.';return;
+    sndPlace();swingArm();document.getElementById('status').textContent=chosenGarden==='pond'?'Pond built! Choose Fish in Inventory. They grow in water; use a fishing rod when they are grown.':chosenGarden==='library'?'Library built! Walk inside, face a bookshelf and use Interact to read a story.':'Planted '+GARDEN_KITS[chosenGarden]+'. Each part can be changed with BREAK.';return;
   }
   if(chosenAnimal){
     const water=chosenAnimal==='fish';
@@ -4269,7 +4282,7 @@ function doPlace() {
   if(gameMode==='hardcore'){inventory[block]--;hardcore=globalThis.MYNE_HARDCORE.recordPlace(hardcore,block);}
   setBlock(nx, ny, nz, BLOCK_KEYS[selected]);
   recordEdit(nx, ny, nz, BLOCK_KEYS[selected]);
-  sndPlace();quest?.signal('placed');
+  sndPlace();swingArm();quest?.signal('placed');
   updateBlockMeshes(nx,ny,nz);
   if(gameMode==='hardcore'){advanceHardcore();refreshHotbar();}
   else if(!fishUnlocked&&globalThis.MYNE_HARDCORE?.inspectHabitat(getBlock,saveState.edits).valid){
@@ -4292,7 +4305,22 @@ addEventListener('mousedown', e => {
   if (e.target !== renderer.domElement) return;
   if (e.button === 0) doBreak();
   else if (e.button === 2) doPlace();
+  // Holding the button keeps building or digging, like Minecraft. Only while the mouse is
+  // locked to the game: unlocked, a left drag turns the camera and must not dig.
+  if((e.button===0||e.button===2)&&document.pointerLockElement===renderer.domElement)heldMouse={button:e.button,wait:HOLD_FIRST};
 });
+// Hold-to-repeat timing: a short pause after the first block, then a steady pace.
+const HOLD_FIRST=.32,HOLD_EVERY=.22;
+let heldMouse=null;
+addEventListener('mouseup',e=>{if(heldMouse&&e.button===heldMouse.button)heldMouse=null;});
+function updateHeldMouse(dt){
+  if(!heldMouse)return;
+  if(!started||document.pointerLockElement!==renderer.domElement){heldMouse=null;return;}
+  heldMouse.wait-=dt;
+  if(heldMouse.wait>0)return;
+  heldMouse.wait=HOLD_EVERY;
+  if(heldMouse.button===0)doBreak();else doPlace();
+}
 addEventListener('contextmenu', e => e.preventDefault());
 
 // ---------- collision (simple AABB vs voxel) ----------
@@ -4361,7 +4389,9 @@ function updatePlayerAvatar(dt){
   playerAvatar.group.position.set(player.pos.x,player.pos.y-player.height,player.pos.z);
   // The block models face +Z, and the player walks toward -Z at yaw 0.
   playerAvatar.group.rotation.y=player.yaw+Math.PI;
-  viewArms.armL.rotation.x=-.55+swing*.15;viewArms.armR.rotation.x=-.55-swing*.15;
+  armSwing=Math.max(0,armSwing-dt*5);
+  const chop=Math.sin(armSwing*Math.PI)*.75;
+  viewArms.armL.rotation.x=-.55+swing*.15;viewArms.armR.rotation.x=-.55-swing*.15-chop;
   if(view!=='third')return;
   // Pull the camera back behind the player, stopping short of whatever is behind them
   // so the view never ends up inside a wall.
@@ -4690,6 +4720,7 @@ function tick(now) {
   // eye at top of bounding box
   camera.position.y = player.pos.y + 0.0;
   updatePlayerAvatar(dt);
+  updateHeldMouse(dt);
   updateChallenge();
 
   renderer.render(scene, camera);
@@ -4702,6 +4733,7 @@ function fitRenderer(){
   const vv=window.visualViewport;
   const w=vv?.width||innerWidth, h=Math.max(1,vv?.height||innerHeight);
   camera.aspect=w/h; camera.updateProjectionMatrix(); renderer.setSize(w,h);
+  layoutViewArms();
 }
 addEventListener('resize', fitRenderer);
 if(window.visualViewport) window.visualViewport.addEventListener('resize', fitRenderer);
@@ -4850,7 +4882,13 @@ const gardenChoices=Object.entries(GARDEN_KITS).map(([kind,name])=>{
   gardenGrid.appendChild(button);return button;
 });
 gardenPanel.append(gardenTitle,gardenHelp,gardenGrid);
-inventoryDialog.append(inventoryTitle,inventoryHelp,craftingPanel,gardenPanel,inventoryGrid,animalPanel,cozyPanel,inventoryHint,inventoryBack);inventoryOverlay.appendChild(inventoryDialog);document.body.appendChild(inventoryOverlay);
+// Blocks come first, so a player who just wants to build sees them at once; kits follow.
+// A close button stays at the top of the sheet, so it is reachable without scrolling.
+const inventoryHead=document.createElement('div');inventoryHead.className='inventory-head';
+const inventoryClose=document.createElement('button');inventoryClose.type='button';inventoryClose.className='inventory-close';inventoryClose.textContent='✕';inventoryClose.setAttribute('aria-label','Back to game');
+inventoryClose.addEventListener('click',event=>closeInventory(true,event));
+inventoryHead.append(inventoryTitle,inventoryClose);
+inventoryDialog.append(inventoryHead,inventoryHelp,craftingPanel,inventoryGrid,gardenPanel,animalPanel,cozyPanel,inventoryHint,inventoryBack);inventoryOverlay.appendChild(inventoryDialog);document.body.appendChild(inventoryOverlay);
 function inventoryBackground(disabled){
   for(const element of [hotbar,ctrlPanel,renderer.domElement,document.getElementById('touchUI')])element.inert=disabled;
 }

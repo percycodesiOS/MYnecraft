@@ -66,6 +66,15 @@ Save keeps progress in this browser on this device; Menu > Save or load a world 
 
 Only the six Specials teachers are playable. Existing Student saves and backups keep their builds and open as Mr. Macek until a teacher is chosen. Hair crowns and long/curly side pieces are slimmer; the title-screen teacher pictures are rendered from those same corrected game models. No save key, format, site address or world geometry changed.
 
+## October 29 play and layout fixes
+
+- **First-person arms** frame the view from the lower corners and follow the screen shape (`layoutViewArms`), so the crosshair, the block bar and the ground being built on stay clear on laptops, tablets and phones. The right arm swings briefly on each place or break.
+- **Hold to build:** with the mouse locked to the game, holding the left or right button keeps breaking or placing (first repeat after 0.32 s, then every 0.22 s), like Minecraft. Without the lock a left drag turns the camera and never repeats. Touch PLACE and BREAK stay one tap, one block.
+- **Top bar:** below 1100 px wide the bar wraps instead of pushing buttons off screen, and Fly and Tutorial show their icons only; touch screens rely on the big FLY button. On phones every button now fits a 375 px screen (Fly and Tutorial were previously off the edge).
+- **Blocks sheet:** blocks are listed before the Creative kits, and a ✕ close button stays pinned at the top while the sheet scrolls.
+- **Landing header:** stays on one line on phones and no longer covers the logo.
+- The stylesheet link's version (`start-menu.css?v=…`) changes with these styles so browsers fetch the new file. No save key, save format, address or world geometry changed. `game/tests/ui-layout.test.mjs` guards the layout rules.
+
 ## Group-room development status
 
 `game/rooms.html` and `game/room-client.js` connect to the separate Node service in `server/room-service.mjs`; see `server/README.md`. This service is not hosted by GitHub Pages and no public service URL is configured in this release. Since October 23, 2026 no student-facing page links to `game/rooms.html`; the title screen's hidden Mr. Macek link opens the `game/teacher.html` placeholder instead. Local verification covers teacher admission, open/close, scoped sessions, authoritative block edits, and isolation from personal saves. Chat and text-sign fields are absent from the room protocol. The service holds rooms in memory and requires manual teacher review unless a server-side detector is supplied. Automated recognition of words made from blocks, actual screenshot capture/delivery, durable storage, verified student identity, and full-class load validation remain incomplete. Do not represent this as the completed automatic classroom-safeguard system.

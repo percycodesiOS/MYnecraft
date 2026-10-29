@@ -32,7 +32,7 @@ globalThis.api={STAFF_CHARACTERS,MAX_CAMPUS_ACTORS,staffInputs,staffCards,staffC
  campusActors,macek,micco,ellie,percy,CIRC_ROOM,macekPatrol,skinTex,patternedSleeve,macekClothes,scene,WORLD,saveState,
  persistSave,worldBackupText,readWorldBackup,restoreWorldBackup,walkFeet,walkingPath,canStandAt,insideBounds,schoolFootprint,
  getBlock,setBlock,updateCampus,eriksen,mullet,wingenbach,mcmichael,eriksenBounds,mulletBounds,wingenbachBounds,mcmichaelBounds,
- mulletPatrol,mcmichaelPatrol,staffRoutine,updateStaffActivities,bubble};`;
+ mulletPatrol,mcmichaelPatrol,staffRoutine,updateStaffActivities,bubble,layoutViewArms,swingArm};`;
 
 function boot(state={}){
  const elements={},events={},writes=[];
@@ -369,5 +369,25 @@ assert.equal(a.bubble.textContent,'','leaving and returning during cooldown does
 a.player.pos.set(110,30,90);for(let i=0;i<260;i++)a.updateStaffActivities(.05);
 a.player.pos.set(a.mcmichael.pos.x,12.7,a.mcmichael.pos.z+1);a.updateStaffActivities(0);
 assert.match(a.bubble.textContent,/Hola.*Cómo estás/,'a later return earns a new greeting');
+
+// First-person arms frame the view from the lower corners on any screen shape, leaving the
+// middle (crosshair, block bar, the ground being built on) clear, and stay on screen.
+for(const aspect of [16/9,16/10,4/3,375/812]){
+ a.camera.aspect=aspect;a.layoutViewArms();
+ const halfH=.72*Math.tan(Three.MathUtils.degToRad(a.camera.fov/2)),halfW=halfH*aspect;
+ for(const [name,side] of [['armL',-1],['armR',1]]){
+  const p=a.viewArms[name].position;
+  assert.equal(Math.sign(p.x),side,'each arm stays on its own side');
+  assert(Math.abs(p.x)<=halfW,'the arm stays inside the view at aspect '+aspect.toFixed(2));
+  if(aspect>1)assert(Math.abs(p.x)>=halfW*.5,'on a wide screen the arm sits out toward the edge, not over the middle');
+  assert(p.y<=-halfH*.9,'the arm sits low, near the bottom edge');
+ }
+}
+{
+ const rest=a.viewArms.armR.rotation.x;a.swingArm();a.updatePlayerAvatar(.1);
+ assert(a.viewArms.armR.rotation.x<rest-.3,'placing or breaking swings the right arm');
+ for(let i=0;i<10;i++)a.updatePlayerAvatar(.1);
+ assert(Math.abs(a.viewArms.armR.rotation.x-a.viewArms.armL.rotation.x)<.05,'and it comes back to rest');
+}
 
 console.log('PASS: teacher-only chooser (six Specials teachers, Mr. Macek until one is picked), new-player and saved-Student paths that keep every build, Student backups that still import, no character access to room permissions, the retired Student look with a plain blue back, all six teacher bodies/arms/clothing, plain PLAY with a Playing as line, old automatic Macek migration, UI selection and identity, save/import/reload/legacy safety, 17-NPC bounds, independent black-SV NPC, actual walks/floors, painting/music without world edits, Spanish body proximity/cooldown and cached object reuse.');
