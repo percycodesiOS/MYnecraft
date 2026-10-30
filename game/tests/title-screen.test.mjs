@@ -115,5 +115,5 @@ assert.match(teacherPage, /class rooms need a room server that isn’t set up ye
 assert.match(teacherPage, /<meta name="robots" content="noindex">/);
 assert.doesNotMatch(teacherPage, /password|<input|<form|rooms\.html|<script/i, 'just a message: no sign-in, no password, no room link');
 // First time playing? The Basics quest card starts the quest in Creative.
-assert.match(landing, /<a class="quest-link" id="quest-link" href="game\/mynecraft\.html\?mode=creative&amp;tutorial=1">[\s\S]*?<b>First time playing\?<\/b><span class="quest-sub">Click here to quiz your way through the basics\.<\/span>/);
+assert.match(landing, /<a class="quest-link" id="quest-link" href="game\/mynecraft\.html\?mode=creative&amp;tutorial=1">[\s\S]*?<b>First time playing\?<\/b><span class="quest-sub">Jump into the Basics quest\. Learn by doing\.<\/span>/);
 console.log('PASS: plain link shows the title screen once per tab, no loops, deep links unchanged, PLAY starts the world, saves untouched.');

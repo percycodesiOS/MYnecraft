@@ -384,7 +384,7 @@ for(const fn of events.keydown)fn({code:'KeyI',repeat:true,preventDefault(){}});
 assert.equal(a.inventoryOpen,true,'holding I does not close the picker immediately');
 a.inventoryBack.focus();
 for(const fn of events.keydown)fn({code:'Tab',preventDefault(){}});
-assert.equal(document.activeElement.dataset.garden,'oak','Tab wraps to the first visible garden choice within the picker');
+assert.equal(document.activeElement,a.inventoryClose,'Tab wraps from the bottom of the picker back to its top close button');
 a.inventoryChoices[7].button.events.click[0]();
 assert.equal(a.selected,7,'Brick is selected through the real inventory button');
 assert.equal(a.inventoryOpen,false);assert.equal(a.started,true);

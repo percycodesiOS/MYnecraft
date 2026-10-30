@@ -87,6 +87,11 @@ for(const dog of [a.ellie,a.percy])assert(dog.pos.distanceTo(a.macek.pos)<4,'fre
 assert.equal(a.playerAvatars.micco.style,a.micco.style,'the playable Micco reuses her existing campus style');
 assert.deepEqual(a.playerAvatars.micco.head.material[4].map.image.getContext('2d').draws,a.micco.head.material[4].map.image.getContext('2d').draws,'Micco retains the existing face drawing');
 assert.equal(state.elements.staffChoices.children.length,6);
+for(const character of a.STAFF_CHARACTERS){
+ const card=a.staffCards[character.id];
+ assert.equal(card.children.find(child=>child.className==='staff-role').textContent,character.role,'refreshing locks keeps the teacher department intact');
+ assert.equal(card.children.find(child=>child.id===`character-description-${character.id}`).textContent,character.detail,'outfit details remain in their own accessible description');
+}
 assert.deepEqual(state.elements.staffChoices.children.map(card=>card.dataset.character),expected.map(([id])=>id),'the chooser shows exactly the six teachers');
 assert.equal(new Set(Object.values(a.playerAvatars).map(v=>v.body.material[0].map)).size,6,'each selection has its own visible clothing');
 assert.equal(new Set(Object.values(a.playerAvatars).map(v=>v.head.material[4].map)).size,6,'every player body has a distinct face');
