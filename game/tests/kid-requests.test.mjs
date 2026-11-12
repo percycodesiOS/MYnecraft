@@ -73,8 +73,8 @@ assert.equal(a.readWorldBackup(JSON.stringify(backup)).companionMode,'stay');
 delete backup.state.companionMode;assert.equal(a.readWorldBackup(JSON.stringify(backup)).companionMode,undefined);
 backup.state.companionMode='chase';assert.throws(()=>a.readWorldBackup(JSON.stringify(backup)),/Percy and Ellie/);
 
-// The bookshelf is appended last, so every older selected-block index still means the same block.
-assert.equal(a.keys.at(-1),'bookshelf');assert.equal(a.keys.length,37);
+// The bookshelf keeps slot 36 and the computer parts follow it, so every older selected-block index still means the same block.
+assert.equal(a.keys.indexOf('bookshelf'),36);assert.deepEqual([...a.keys.slice(37)],['redrock','button','greenbutton','bluebutton','yellowbutton','lamp']);assert.equal(a.keys.length,43);
 assert(a.BLOCKS.bookshelf&&!a.BLOCKS.bookshelf.plant);
 assert(a.INVENTORY_ADDITIONS.includes('bookshelf'),'group rooms, which accept only the original blocks, hide it');
 // The one-place library: bookshelf walls, a door toward the player, windows, floor, roof and light.
